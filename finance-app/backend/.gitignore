@@ -1,0 +1,89 @@
+# ========================
+# DEPENDÊNCIAS
+# ========================
+node_modules/
+.pnpm-store/
+.npm/
+
+# ========================
+# BUILD / PRODUÇÃO
+# ========================
+dist/
+build/
+out/
+.next/
+
+# ========================
+# LOGS
+# ========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========================
+# VARIÁVEIS DE AMBIENTE (SENSÍVEL)
+# ========================
+.env
+.env.*
+!.env.example
+
+# ========================
+# BANCO DE DADOS (IMPORTANTE)
+# ========================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Se usar Prisma
+prisma/dev.db
+prisma/*.db
+
+# ========================
+# CACHE / TEMP
+# ========================
+.cache/
+.tmp/
+temp/
+*.tmp
+
+# ========================
+# SISTEMA OPERACIONAL
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# IDE / EDITOR
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# TESTES / COBERTURA
+# ========================
+coverage/
+
+# ========================
+# UPLOADS (se tiver)
+# ========================
+uploads/
+public/uploads/
+
+# ========================
+# CHAVES E SEGREDOS
+# ========================
+*.pem
+*.key
+*.crt
+
+# ========================
+# OUTROS
+# ========================
+*.bak
+*.old
