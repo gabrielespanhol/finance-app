@@ -513,6 +513,14 @@ export default function App() {
                 <button
                   onClick={async () => {
                     if (!selectedIds.length) return;
+                    if (
+                      selectedIds.length === tableData.length &&
+                      tableData.length > 0
+                    ) {
+                      setShowDeleteAllModal(true);
+                      return;
+                    }
+                    // Otherwise delete immediately without confirmation
                     await Promise.all(
                       selectedIds.map((id) =>
                         axios.delete(
@@ -533,24 +541,7 @@ export default function App() {
                   >
                     <path d="M9 3v1H4v2h16V4h-5V3H9zM6 7v12a2 2 0 002 2h8a2 2 0 002-2V7H6z" />
                   </svg>
-                  Excluir Selecionados
-                </button>
-                <button
-                  onClick={() => {
-                    if (!tableData.length) return;
-                    setShowDeleteAllModal(true);
-                  }}
-                  className={`bg-red-700 text-white px-3 py-1 rounded-2xl ${tableData.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="inline-block h-4 w-4 mr-2"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M3 6h18v2H3V6zm3 4h12v10a1 1 0 01-1 1H7a1 1 0 01-1-1V10zM9 4h6v2H9V4z" />
-                  </svg>
-                  Excluir Tudo
+                  Excluir itens
                 </button>
               </div>
             </div>
