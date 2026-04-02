@@ -15,15 +15,6 @@ router.get("/transactions", (req, res) => {
   });
 });
 
-// GET /categories
-router.get("/categories", (req, res) => {
-  service.getAllCategories((err, rows) => {
-    if (err) return res.status(500).send(err);
-    // return array of { name, color }
-    res.json(rows.map((r) => ({ name: r.name, color: r.color })));
-  });
-});
-
 // POST /transactions
 router.post("/transactions", (req, res) => {
   service.createTransaction(req.body, (err, result) => {

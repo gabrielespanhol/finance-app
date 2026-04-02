@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import Overview from "./pages/Overview";
+import CategoriesPage from "./pages/CategoriesPage";
 
 export default function App() {
   const [tab, setTab] = useState("dashboard");
@@ -15,7 +16,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Finance</h1>
             <nav className="flex bg-transparent rounded-2xl p-1">
-              {["dashboard", "planejamento"].map((t) => (
+              {["dashboard", "planejamento", "categorias"].map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -25,7 +26,7 @@ export default function App() {
                       : `${dark ? "text-[#9CA3AF]" : "text-gray-500"}`
                   }`}
                 >
-                  {t === "dashboard" ? "Dashboard" : "Overview"}
+                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Overview" : "Categorias"}
                 </button>
               ))}
             </nav>
@@ -52,6 +53,7 @@ export default function App() {
       <main className="max-w-6xl mx-auto">
         {tab === "dashboard" && <Dashboard dark={dark} setDark={setDark} />}
         {tab === "planejamento" && <Overview dark={dark} setDark={setDark} />}
+        {tab === "categorias" && <CategoriesPage dark={dark} setDark={setDark} />}
       </main>
     </div>
   );

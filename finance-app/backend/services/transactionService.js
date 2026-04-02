@@ -1,11 +1,6 @@
 const db = require("../db");
 const { toISODate, toNumber, categorize } = require("../utils");
 
-// Fetch all categories
-function getAllCategories(callback) {
-  db.all(`SELECT name, color FROM categories ORDER BY name`, [], callback);
-}
-
 // Fetch all transactions
 function getAllTransactions(callback) {
   db.all(`SELECT * FROM transactions`, [], callback);
@@ -174,7 +169,6 @@ function processUploadItems(items, done) {
 }
 
 module.exports = {
-  getAllCategories,
   getAllTransactions,
   createTransaction,
   updateTransaction,

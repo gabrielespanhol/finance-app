@@ -6,6 +6,12 @@ export const getTransactions = () =>
   axios.get(`${base}/transactions`).then((r) => r.data);
 export const getCategories = () =>
   axios.get(`${base}/categories`).then((r) => r.data);
+export const createCategory = (payload) =>
+  axios.post(`${base}/categories`, payload).then((r) => r.data);
+export const updateCategory = (id, payload) =>
+  axios.put(`${base}/categories/${id}`, payload);
+export const deleteCategory = (id) =>
+  axios.delete(`${base}/categories/${id}`);
 export const createTransaction = (payload) =>
   axios.post(`${base}/transactions`, payload).then((r) => r.data);
 export const updateTransaction = (id, payload) =>

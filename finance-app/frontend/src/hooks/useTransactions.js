@@ -8,7 +8,6 @@ import {
   getCategories,
 } from "../services/api";
 import { parseCurrencyInput } from "../utils/format";
-import { categories } from "../utils/categories";
 
 // Hook encapsulating transactions state and logic
 export default function useTransactions(external = {}) {
@@ -161,13 +160,13 @@ export default function useTransactions(external = {}) {
     form.type &&
     (form.type === "income" || (form.category && form.category !== ""));
 
-  const chartData = Object.keys(categories).map((cat) => ({
+  const chartData = categoriesState.map((c) => c.name).map((cat) => ({
     name: cat,
     value: filtered
       .filter((t) => t.category === cat && t.type === "expense")
       .reduce((a, t) => a + Number(t.amount), 0),
   }));
-  const globalData = Object.keys(categories).map((cat) => ({
+  const globalData = categoriesState.map((c) => c.name).map((cat) => ({
     name: cat,
     value: transactions
       .filter((t) => t.category === cat && t.type === "expense")
