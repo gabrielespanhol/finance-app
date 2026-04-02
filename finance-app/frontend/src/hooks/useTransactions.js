@@ -5,6 +5,7 @@ import {
   updateTransaction,
   deleteTransaction,
   uploadFile,
+  getCategories,
 } from "../services/api";
 import { parseCurrencyInput } from "../utils/format";
 import { categories } from "../utils/categories";
@@ -36,10 +37,19 @@ export default function useTransactions(external = {}) {
   const [amountInput, setAmountInput] = useState("");
   const [uploadFeedback, setUploadFeedback] = useState(null);
   const [modalEditing, setModalEditing] = useState(false);
+  const [categoriesState, setCategoriesState] = useState([]);
 
   const fetchData = async () => {
     const data = await getTransactions();
     setTransactions(data);
+    // also refresh categories so UI stays in sync after changes
+    try {
+      const cats = await getCategories();
+      // cats expected as [{name, color}]
+      setCategoriesState(cats.map((c) => c.name));
+    } catch (e) {
+      // ignore, keep previous
+    }
   };
 
   useEffect(() => {
@@ -209,6 +219,8 @@ export default function useTransactions(external = {}) {
     amountInput,
     setAmountInput,
     uploadFeedback,
+    // names fetched from backend
+    categories: categoriesState,
     setUploadFeedback,
     modalEditing,
     setModalEditing,

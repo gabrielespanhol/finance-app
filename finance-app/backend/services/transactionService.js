@@ -1,15 +1,10 @@
 const db = require("../db");
 const { toISODate, toNumber, categorize } = require("../utils");
 
-const VALID_CATEGORIES = [
-  "Alimentação",
-  "Moradia",
-  "Transporte",
-  "Lazer",
-  "Investimentos",
-  "Saúde",
-  "Outros",
-];
+// Fetch all categories
+function getAllCategories(callback) {
+  db.all(`SELECT name, color FROM categories ORDER BY name`, [], callback);
+}
 
 // Fetch all transactions
 function getAllTransactions(callback) {
@@ -27,16 +22,29 @@ function createTransaction(payload, callback) {
       error: "date, amount, type and category are required and must be valid",
     });
   }
-  const finalCategory = VALID_CATEGORIES.includes(category)
-    ? category
-    : "Outros";
-  db.run(
-    `INSERT INTO transactions (date, amount, type, category, person, description)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [isoDate, num, type, finalCategory, person || null, description || null],
-    function (err) {
+  // validate category exists in categories table, fallback to 'Outros'
+  db.get(
+    `SELECT name FROM categories WHERE name = ?`,
+    [category],
+    (err, row) => {
       if (err) return callback(err);
-      callback(null, { id: this.lastID });
+      const finalCategory = row && row.name ? row.name : "Outros";
+      db.run(
+        `INSERT INTO transactions (date, amount, type, category, person, description)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          isoDate,
+          num,
+          type,
+          finalCategory,
+          person || null,
+          description || null,
+        ],
+        function (err) {
+          if (err) return callback(err);
+          callback(null, { id: this.lastID });
+        },
+      );
     },
   );
 }
@@ -63,29 +71,42 @@ function updateTransaction(id, payload, callback) {
     updates.push("type=?");
     params.push(type);
   }
+  const proceedUpdate = (finalCategoryValue) => {
+    if (finalCategoryValue !== undefined) {
+      updates.push("category=?");
+      params.push(finalCategoryValue);
+    }
+    if (person !== undefined) {
+      updates.push("person=?");
+      params.push(person);
+    }
+    if (description !== undefined) {
+      updates.push("description=?");
+      params.push(description);
+    }
+    if (updates.length === 0)
+      return callback({ status: 400, error: "no updatable fields provided" });
+    params.push(id);
+    const sql = `UPDATE transactions SET ${updates.join(", ")} WHERE id=?`;
+    db.run(sql, params, function (err) {
+      if (err) return callback(err);
+      callback(null);
+    });
+  };
+  // if category was provided, validate against categories table first
   if (category !== undefined) {
-    const finalCategory = VALID_CATEGORIES.includes(category)
-      ? category
-      : "Outros";
-    updates.push("category=?");
-    params.push(finalCategory);
+    db.get(
+      `SELECT name FROM categories WHERE name = ?`,
+      [category],
+      (err, row) => {
+        if (err) return callback(err);
+        const finalCategory = row && row.name ? row.name : "Outros";
+        proceedUpdate(finalCategory);
+      },
+    );
+  } else {
+    proceedUpdate(undefined);
   }
-  if (person !== undefined) {
-    updates.push("person=?");
-    params.push(person);
-  }
-  if (description !== undefined) {
-    updates.push("description=?");
-    params.push(description);
-  }
-  if (updates.length === 0)
-    return callback({ status: 400, error: "no updatable fields provided" });
-  params.push(id);
-  const sql = `UPDATE transactions SET ${updates.join(", ")} WHERE id=?`;
-  db.run(sql, params, function (err) {
-    if (err) return callback(err);
-    callback(null);
-  });
 }
 
 // Delete transaction
@@ -153,6 +174,7 @@ function processUploadItems(items, done) {
 }
 
 module.exports = {
+  getAllCategories,
   getAllTransactions,
   createTransaction,
   updateTransaction,

@@ -9,7 +9,15 @@ export default function TransactionModal({
   setModalEditing,
   updateTransaction,
   deleteTransaction,
+  categories,
 }) {
+  const availableCategories = categories || [];
+  const optionsList =
+    selected?.category &&
+    selected.category !== "" &&
+    !availableCategories.includes(selected.category)
+      ? [selected.category, ...availableCategories]
+      : availableCategories;
   return (
     <div
       className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
@@ -81,7 +89,11 @@ export default function TransactionModal({
           onChange={(e) => updateSelected({ category: e.target.value })}
         >
           <option value="">Selecione uma categoria</option>
-          {/* Options rendered by parent or category util */}
+          {optionsList.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
         </select>
         <input
           placeholder="Pessoa"

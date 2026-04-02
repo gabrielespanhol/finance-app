@@ -4,7 +4,7 @@ import TransactionModal from "../components/TransactionModal";
 import ConfirmModal from "../components/ConfirmModal";
 import Charts from "../components/Charts";
 import useTransactions from "../hooks/useTransactions";
-import { categoryList, categories } from "../utils/categories";
+import { categories } from "../utils/categories";
 import { formatCurrency } from "../utils/format";
 
 export default function Dashboard({ dark, setDark }) {
@@ -116,7 +116,7 @@ export default function Dashboard({ dark, setDark }) {
             }
           >
             <option value="">Categoria</option>
-            {categoryList.map((c) => (
+            {(tx.categories || []).map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
@@ -238,7 +238,7 @@ export default function Dashboard({ dark, setDark }) {
           className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
         >
           <option value="">Todas as categorias</option>
-          {categoryList.map((c) => (
+          {(tx.categories || []).map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -281,6 +281,7 @@ export default function Dashboard({ dark, setDark }) {
           setModalEditing={tx.setModalEditing}
           updateTransaction={tx.updateTransaction}
           deleteTransaction={tx.deleteTransaction}
+          categories={tx.categories}
         />
       )}
 
