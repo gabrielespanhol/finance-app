@@ -30,7 +30,6 @@ export default function App() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [tableFilters, setTableFilters] = useState({
-    date: "",
     category: "",
     type: "",
   });
@@ -129,7 +128,6 @@ export default function App() {
   // table-level filtering and sorting (newest first)
   const tableData = filtered
     .filter((t) => {
-      if (tableFilters.date && t.date !== tableFilters.date) return false;
       if (
         tableFilters.category &&
         tableFilters.category !== "" &&
@@ -552,14 +550,7 @@ export default function App() {
 
             {/* Table filters */}
             <div className="flex flex-wrap items-center gap-3 mb-3">
-              <input
-                type="date"
-                value={tableFilters.date}
-                onChange={(e) =>
-                  setTableFilters((s) => ({ ...s, date: e.target.value }))
-                }
-                className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
-              />
+              {/* Date filter removed per request */}
 
               <select
                 value={tableFilters.category}
@@ -589,9 +580,7 @@ export default function App() {
               </select>
 
               <button
-                onClick={() =>
-                  setTableFilters({ date: "", category: "", type: "" })
-                }
+                onClick={() => setTableFilters({ category: "", type: "" })}
                 className="text-sm text-[#9CA3AF] px-2 py-1 rounded-xl border"
               >
                 Limpar
