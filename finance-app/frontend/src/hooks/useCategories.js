@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../services/api";
+import useModal from "./useModal";
 
 export default function useCategories(external = {}) {
   const { dark: externalDark, setDark: externalSetDark } = external || {};
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ name: "", color: "#888888" });
   const [editingId, setEditingId] = useState(null);
+  const modal = useModal();
   
   const darkInternal = true;
   const dark = externalDark !== undefined ? externalDark : darkInternal;
@@ -38,7 +40,7 @@ export default function useCategories(external = {}) {
       fetchData();
     } catch (err) {
       console.error("Error saving category", err);
-      alert(err.response?.data?.error || "Erro ao salvar categoria");
+      await modal.showAlert("Erro", err.response?.data?.error || "Erro ao salvar categoria");
     }
   };
 
@@ -48,7 +50,14 @@ export default function useCategories(external = {}) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Deseja realmente excluir esta categoria?")) return;
+    const isConfirmed = await modal.showConfirm(
+      "Excluir Categoria", 
+      "Deseja realmente excluir esta categoria? As transações serão movidas para 'Outros'.", 
+      "Excluir", 
+      true
+    );
+    if (!isConfirmed) return;
+    
     try {
       await deleteCategory(id);
       if (editingId === id) {
@@ -58,7 +67,7 @@ export default function useCategories(external = {}) {
       fetchData();
     } catch (err) {
       console.error("Error deleting category", err);
-      alert(err.response?.data?.error || "Erro ao excluir categoria");
+      await modal.showAlert("Erro", err.response?.data?.error || "Erro ao excluir categoria");
     }
   };
 
@@ -79,6 +88,7 @@ export default function useCategories(external = {}) {
     handleDelete,
     cancelEdit,
     isFormValid,
-    dark
+    dark,
+    modal
   };
 }

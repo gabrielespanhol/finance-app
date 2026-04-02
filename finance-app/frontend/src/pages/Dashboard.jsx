@@ -1,7 +1,7 @@
 import React from "react";
 import TransactionsTable from "../components/TransactionsTable";
 import TransactionModal from "../components/TransactionModal";
-import ConfirmModal from "../components/ConfirmModal";
+import Modal from "../components/Modal";
 import Charts from "../components/Charts";
 import useTransactions from "../hooks/useTransactions";
 import { formatCurrency } from "../utils/format";
@@ -286,8 +286,9 @@ export default function Dashboard({ dark, setDark }) {
       )}
 
       {tx.showDuplicateModal && (
-        <ConfirmModal
+        <Modal
           show={tx.showDuplicateModal}
+          type="confirm"
           title="Transação duplicada"
           message="Duplicate transaction detected. Add anyway?"
           onCancel={() => {
@@ -300,8 +301,10 @@ export default function Dashboard({ dark, setDark }) {
       )}
 
       {tx.showDeleteAllModal && (
-        <ConfirmModal
+        <Modal
           show={tx.showDeleteAllModal}
+          type="confirm"
+          danger={true}
           title="Confirmar exclusão"
           message="Você tem certeza que deseja excluir todas as transações visíveis? Esta ação não pode ser desfeita."
           onCancel={() => tx.setShowDeleteAllModal(false)}

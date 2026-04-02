@@ -38,10 +38,29 @@ db.serialize(() => {
     ["Aurora", "#ee11c6"],
   ];
   const stmt = db.prepare(
-    `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`,
+    `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`
   );
   defaults.forEach((d) => stmt.run(d[0], d[1]));
-  stmt.finalize();
+  stmt.finalize(() => {
+    // Migration: add category_id column if not exists
+    db.run(`ALTER TABLE transactions ADD COLUMN category_id INTEGER`, function(err) {
+      // It will err if column already exists.
+      // Next, migrate current transactions to have proper category_id
+      db.run(`
+        UPDATE transactions 
+        SET category_id = (SELECT id FROM categories WHERE categories.name = transactions.category)
+        WHERE category_id IS NULL
+      `, function(err) {
+        if(err) console.error("Migration phase 1 error:", err);
+        // Fallback any remaining nulls to Outros
+        db.run(`
+          UPDATE transactions
+          SET category_id = (SELECT id FROM categories WHERE name = 'Outros')
+          WHERE category_id IS NULL
+        `);
+      });
+    });
+  });
 });
 
 module.exports = db;

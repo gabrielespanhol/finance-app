@@ -1,5 +1,6 @@
 import React from "react";
 import useCategories from "../hooks/useCategories";
+import Modal from "../components/Modal";
 
 export default function CategoriesPage({ dark, setDark }) {
   const cat = useCategories({ dark, setDark });
@@ -9,6 +10,7 @@ export default function CategoriesPage({ dark, setDark }) {
 
   return (
     <>
+      <Modal {...cat.modal.modalState} dark={cat.dark} />
       <h2 className="font-semibold mb-6 text-xl">Gerenciar Categorias</h2>
       
       {/* ADD NEW CATEGORY FORM */}
