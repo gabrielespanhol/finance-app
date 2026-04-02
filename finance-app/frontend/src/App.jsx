@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  getTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+  uploadFile,
+} from "./services/api";
+import { formatCurrency, parseCurrencyInput } from "./utils/format";
+import { categories, categoryList } from "./utils/categories";
+import TransactionsTable from "./components/TransactionsTable";
 import {
   PieChart,
   Pie,
@@ -11,16 +20,6 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-
-const categories = {
-  Alimentação: "#22c55e",
-  Moradia: "#3b82f6",
-  Transporte: "#f59e0b",
-  Lazer: "#a855f7",
-  Investimentos: "#10b981",
-  Saúde: "#ef4444",
-  Outros: "#6b7280",
-};
 
 export default function App() {
   const [transactions, setTransactions] = useState([]);
@@ -50,8 +49,8 @@ export default function App() {
   const [modalEditing, setModalEditing] = useState(false);
 
   const fetchData = async () => {
-    const res = await axios.get("http://localhost:3001/transactions");
-    setTransactions(res.data);
+    const data = await getTransactions();
+    setTransactions(data);
   };
 
   useEffect(() => {
@@ -80,7 +79,7 @@ export default function App() {
       setShowDuplicateModal(true);
       return;
     }
-    await axios.post("http://localhost:3001/transactions", payload);
+    await createTransaction(payload);
     setForm({
       date: today,
       amount: "",
@@ -94,7 +93,7 @@ export default function App() {
 
   const confirmAddAnyway = async () => {
     if (!duplicateCandidate) return;
-    await axios.post("http://localhost:3001/transactions", duplicateCandidate);
+    await createTransaction(duplicateCandidate);
     setDuplicateCandidate(null);
     setShowDuplicateModal(false);
     setForm({
@@ -125,9 +124,7 @@ export default function App() {
       setShowDeleteAllModal(false);
       return;
     }
-    await Promise.all(
-      ids.map((id) => axios.delete(`http://localhost:3001/transactions/${id}`)),
-    );
+    await Promise.all(ids.map((id) => deleteTransaction(id)));
     setShowDeleteAllModal(false);
     setSelectedIds([]);
     fetchData();
@@ -204,12 +201,8 @@ export default function App() {
     if (!file) return;
     const formData = new FormData();
     formData.append("file", file);
-
     try {
-      const res = await axios.post("http://localhost:3001/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const data = res.data || {};
+      const data = await uploadFile(formData);
       setUploadFeedback(
         `Imported: ${data.imported || 0}, Skipped: ${data.skipped || 0}`,
       );
@@ -219,23 +212,7 @@ export default function App() {
     }
   };
 
-  const formatCurrency = (v) => {
-    if (v === null || v === undefined || v === "") return "";
-    const n = Number(v);
-    if (isNaN(n)) return "";
-    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  };
-
-  const parseCurrencyInput = (s) => {
-    if (!s) return null;
-    // remove everything except digits, comma, dot, and minus
-    const cleaned = String(s)
-      .replace(/[^0-9\-.,]/g, "")
-      .replace(/\.(?=.*\.)/g, "")
-      .replace(",", ".");
-    const n = Number(cleaned);
-    return isNaN(n) ? null : n;
-  };
+  // format helpers moved to ./utils/format
 
   return (
     <div
@@ -395,7 +372,7 @@ export default function App() {
                   }
                 >
                   <option value="">Categoria</option>
-                  {Object.keys(categories).map((c) => (
+                  {categoryList.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -535,11 +512,7 @@ export default function App() {
                     }
                     // Otherwise delete immediately without confirmation
                     await Promise.all(
-                      selectedIds.map((id) =>
-                        axios.delete(
-                          `http://localhost:3001/transactions/${id}`,
-                        ),
-                      ),
+                      selectedIds.map((id) => deleteTransaction(id)),
                     );
                     setSelectedIds([]);
                     fetchData();
@@ -598,102 +571,13 @@ export default function App() {
               </button>
             </div>
 
-            <div
-              className={`${dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"} rounded-2xl border overflow-hidden`}
-            >
-              <table className="w-full">
-                <thead
-                  className={`${dark ? "bg-[#141619] text-[#9CA3AF]" : "bg-gray-50 text-gray-600"}`}
-                >
-                  <tr>
-                    <th className="p-3 text-left">
-                      <input
-                        type="checkbox"
-                        className="appearance-none w-5 h-5 rounded-full border transition-colors checked:bg-[#FCD535] checked:border-[#FCD535] focus:outline-none"
-                        checked={
-                          selectedIds.length === tableData.length &&
-                          tableData.length > 0
-                        }
-                        onChange={(e) => {
-                          if (e.target.checked)
-                            setSelectedIds(tableData.map((f) => f.id));
-                          else setSelectedIds([]);
-                        }}
-                      />
-                    </th>
-                    <th className="p-3 text-left">Data</th>
-                    <th className="p-3 text-left">Descrição</th>
-                    <th className="p-3 text-left">Categoria</th>
-                    <th className="p-3 text-right">Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="p-6 text-center text-sm text-[#9CA3AF]"
-                      >
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    tableData.map((t) => (
-                      <tr
-                        key={t.id}
-                        onClick={() => setSelected(t)}
-                        className={`cursor-pointer transition-colors ${dark ? "hover:bg-[#212428]" : "hover:bg-gray-50"}`}
-                      >
-                        <td className="p-3 text-sm">
-                          <input
-                            onClick={(e) => e.stopPropagation()}
-                            type="checkbox"
-                            className="appearance-none w-5 h-5 rounded-full border transition-colors checked:bg-[#FCD535] checked:border-[#FCD535] focus:outline-none"
-                            checked={selectedIds.includes(t.id)}
-                            onChange={(e) => {
-                              if (e.target.checked)
-                                setSelectedIds((s) => [...s, t.id]);
-                              else
-                                setSelectedIds((s) =>
-                                  s.filter((id) => id !== t.id),
-                                );
-                            }}
-                          />
-                        </td>
-                        <td className="p-3 text-sm">{t.date}</td>
-                        <td className="p-3 text-sm">{t.description || ""}</td>
-                        <td className="p-3 text-sm">
-                          {t.type === "income" ? (
-                            <span
-                              style={{ color: dark ? "#EAECEF" : undefined }}
-                            >
-                              -
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-3">
-                              <span
-                                className="w-4 h-4 rounded-full"
-                                style={{ background: categories[t.category] }}
-                              />
-                              <span
-                                style={{ color: dark ? "#EAECEF" : undefined }}
-                              >
-                                {t.category}
-                              </span>
-                            </div>
-                          )}
-                        </td>
-                        <td
-                          className={`p-3 text-sm text-right ${t.type === "expense" ? "text-red-400" : "text-green-300"}`}
-                        >
-                          {formatCurrency(t.amount)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <TransactionsTable
+              tableData={tableData}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              setSelected={setSelected}
+              dark={dark}
+            />
           </>
         )}
 
@@ -854,10 +738,7 @@ export default function App() {
                 <button
                   className="bg-[#FCD535] text-black px-3 py-1 rounded-2xl"
                   onClick={async () => {
-                    await axios.put(
-                      `http://localhost:3001/transactions/${selected.id}`,
-                      selected,
-                    );
+                    await updateTransaction(selected.id, selected);
                     setSelected(null);
                     setModalEditing(false);
                     fetchData();
@@ -883,9 +764,7 @@ export default function App() {
                 <button
                   className="bg-red-500 text-white px-3 py-1 rounded-2xl"
                   onClick={async () => {
-                    await axios.delete(
-                      `http://localhost:3001/transactions/${selected.id}`,
-                    );
+                    await deleteTransaction(selected.id);
                     setSelected(null);
                     setModalEditing(false);
                     fetchData();
