@@ -46,7 +46,7 @@ export default function useTransactions(external = {}) {
     try {
       const cats = await getCategories();
       // cats expected as [{name, color}]
-      setCategoriesState(cats.map((c) => c.name));
+      setCategoriesState(cats || []);
     } catch (e) {
       // ignore, keep previous
     }
@@ -219,8 +219,12 @@ export default function useTransactions(external = {}) {
     amountInput,
     setAmountInput,
     uploadFeedback,
-    // names fetched from backend
-    categories: categoriesState,
+    // categories fetched from backend (array of {name,color})
+    categories: categoriesState.map((c) => c.name),
+    // map for quick color lookup: { [name]: color }
+    categoriesMap: Object.fromEntries(
+      (categoriesState || []).map((c) => [c.name, c.color || "#888888"]),
+    ),
     setUploadFeedback,
     modalEditing,
     setModalEditing,

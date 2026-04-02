@@ -28,14 +28,14 @@ db.serialize(() => {
 
   // Seed default categories (INSERT OR IGNORE)
   const defaults = [
-    ["Alimentação", "#22c55e"],
-    ["Moradia", "#3b82f6"],
-    ["Transporte", "#f59e0b"],
-    ["Lazer", "#a855f7"],
-    ["Investimentos", "#10b981"],
-    ["Saúde", "#ef4444"],
+    ["Alimentação", "#ff5900"],
+    ["Moradia", "#7f304d"],
+    ["Transporte", "#ca8712"],
+    ["Lazer", "#55b1f7"],
+    ["Investimentos", "#f3ff18"],
+    ["Saúde", "#69f009"],
     ["Outros", "#6b7280"],
-    ["Aurora", "#7c3aed"],
+    ["Aurora", "#ee11c6"],
   ];
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`,

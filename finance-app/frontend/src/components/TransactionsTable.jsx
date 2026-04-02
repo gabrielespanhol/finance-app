@@ -1,6 +1,5 @@
 import React from "react";
 import { formatCurrency } from "../utils/format";
-import { categories } from "../utils/categories";
 
 export default function TransactionsTable({
   tableData,
@@ -8,6 +7,7 @@ export default function TransactionsTable({
   setSelectedIds,
   setSelected,
   dark,
+  categories = {},
 }) {
   return (
     <div

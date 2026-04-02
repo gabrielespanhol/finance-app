@@ -4,7 +4,6 @@ import TransactionModal from "../components/TransactionModal";
 import ConfirmModal from "../components/ConfirmModal";
 import Charts from "../components/Charts";
 import useTransactions from "../hooks/useTransactions";
-import { categories } from "../utils/categories";
 import { formatCurrency } from "../utils/format";
 
 export default function Dashboard({ dark, setDark }) {
@@ -183,7 +182,7 @@ export default function Dashboard({ dark, setDark }) {
         <Charts
           chartData={tx.chartData}
           balancePieData={tx.balancePieData}
-          categories={categories}
+          categories={tx.categoriesMap}
         />
       </div>
 
@@ -269,6 +268,7 @@ export default function Dashboard({ dark, setDark }) {
         setSelectedIds={tx.setSelectedIds}
         setSelected={tx.setSelected}
         dark={tx.dark}
+        categories={tx.categoriesMap}
       />
 
       {tx.selected && (
