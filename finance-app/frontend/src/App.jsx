@@ -489,12 +489,7 @@ export default function App() {
                 ) : (
                   <div className="flex items-center justify-center">
                     <PieChart width={300} height={300}>
-                      <Pie
-                        data={balancePieData}
-                        dataKey="value"
-                        innerRadius={40}
-                        outerRadius={80}
-                      >
+                      <Pie data={balancePieData} dataKey="value">
                         <Cell key={0} fill="#10b981" />
                         <Cell key={1} fill="#ef4444" />
                       </Pie>
@@ -510,6 +505,15 @@ export default function App() {
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-semibold">Extrato do Mês</h2>
               <div className="flex items-center gap-2">
+                {/* Selection indicator: shows selected/total when any rows are selected */}
+                {selectedIds.length > 0 && (
+                  <div className="text-sm text-[#9CA3AF] flex items-center gap-2 mr-2">
+                    <span className="font-medium">{selectedIds.length}</span>
+                    <span className="text-[#6b7280]">/</span>
+                    <span className="text-[#9CA3AF]">{tableData.length}</span>
+                  </div>
+                )}
+
                 <button
                   onClick={async () => {
                     if (!selectedIds.length) return;
@@ -531,17 +535,17 @@ export default function App() {
                     setSelectedIds([]);
                     fetchData();
                   }}
-                  className={`bg-red-500 text-white px-3 py-1 rounded-2xl ${selectedIds.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
+                  className={`flex items-center gap-2 bg-red-500 text-white px-3 py-1 rounded-2xl ${selectedIds.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="inline-block h-4 w-4 mr-2"
+                    className="h-4 w-4"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                   >
                     <path d="M9 3v1H4v2h16V4h-5V3H9zM6 7v12a2 2 0 002 2h8a2 2 0 002-2V7H6z" />
                   </svg>
-                  Excluir itens
+                  <span>Excluir</span>
                 </button>
               </div>
             </div>
