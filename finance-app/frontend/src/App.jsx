@@ -296,7 +296,7 @@ export default function App() {
                 <p className="text-sm text-[#9CA3AF]">Receitas</p>
                 <strong className="text-green-300 text-xl">
                   {filtered.length === 0
-                    ? "No data"
+                    ? "R$0,00"
                     : formatCurrency(totalIncome)}
                 </strong>
               </div>
@@ -307,7 +307,7 @@ export default function App() {
                 <p className="text-sm text-[#9CA3AF]">Despesas</p>
                 <strong className="text-red-400 text-xl">
                   {filtered.length === 0
-                    ? "No data"
+                    ? "R$0,00"
                     : formatCurrency(totalExpense)}
                 </strong>
               </div>
@@ -319,7 +319,7 @@ export default function App() {
                 <strong
                   className={`text-xl ${balance >= 0 ? "text-white" : "text-red-200"}`}
                 >
-                  {filtered.length === 0 ? "No data" : formatCurrency(balance)}
+                  {filtered.length === 0 ? "R$0,00" : formatCurrency(balance)}
                 </strong>
               </div>
             </div>
