@@ -186,13 +186,23 @@ export default function useTransactions(external = {}) {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const data = await uploadFile(formData);
-      setUploadFeedback(
-        `Imported: ${data.imported || 0}, Skipped: ${data.skipped || 0}`,
-      );
+      const resp = await uploadFile(formData);
+      // Wait, uploadFile directly returns r.data already
+      const data = resp;
+
+      if (data.success) {
+        setUploadFeedback(
+          `Sucesso! Importados: ${data.data.imported || 0}, Ignorados: ${data.data.skipped || 0}`
+        );
+      } else {
+        setUploadFeedback(`Falha: ${data.error || "Erro desconhecido ao processar pacote"}`);
+        console.error("Upload responded logically with false success:", data);
+      }
       fetchData();
     } catch (err) {
-      setUploadFeedback("Upload failed");
+      const serverMsg = err.response?.data?.error || err.message || "Erro de servidor";
+      setUploadFeedback(`Erro durante upload: ${serverMsg}`);
+      console.error("Upload request fully crashed:", err);
     }
   };
 

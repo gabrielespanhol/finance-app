@@ -19,9 +19,28 @@ function toISODate(val) {
 function toNumber(val) {
   if (val === null || val === undefined || val === "") return null;
   if (typeof val === "number") return val;
-  const s = String(val)
-    .replace(/[^0-9\-.,]/g, "")
-    .replace(",", ".");
+  let s = String(val).trim();
+
+  // Handle Brazilian format explicitly: e.g. "4.382,38" -> "4382.38" | "-15,00" -> "-15.00"
+  if (/^-?(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2}$/.test(s)) {
+    s = s.replace(/\./g, "").replace(",", ".");
+  } else {
+    s = s.replace(/[^0-9\-.,]/g, "");
+    // If it has a single comma and no dots (e.g. "15,00"), assume comma is decimal
+    if (s.includes(",") && !s.includes(".")) {
+      s = s.replace(",", ".");
+    } else if (s.includes(",") && s.includes(".")) {
+      // If both, assume the last one is the decimal
+      const lastComma = s.lastIndexOf(",");
+      const lastDot = s.lastIndexOf(".");
+      if (lastComma > lastDot) {
+        s = s.replace(/\./g, "").replace(",", ".");
+      } else {
+        s = s.replace(/,/g, "");
+      }
+    }
+  }
+
   const n = Number(s);
   if (isNaN(n)) return null;
   return n;
