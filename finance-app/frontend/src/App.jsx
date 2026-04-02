@@ -47,6 +47,7 @@ export default function App() {
   });
   const [amountInput, setAmountInput] = useState("");
   const [uploadFeedback, setUploadFeedback] = useState(null);
+  const [modalEditing, setModalEditing] = useState(false);
 
   const fetchData = async () => {
     const res = await axios.get("http://localhost:3001/transactions");
@@ -105,6 +106,16 @@ export default function App() {
     });
     setAmountInput("");
     fetchData();
+  };
+
+  useEffect(() => {
+    // reset modal editing flag whenever a new selection opens/closes
+    setModalEditing(false);
+  }, [selected]);
+
+  const updateSelected = (changes) => {
+    setSelected((s) => ({ ...(s || {}), ...changes }));
+    setModalEditing(true);
   };
 
   const confirmDeleteAll = async () => {
@@ -457,9 +468,6 @@ export default function App() {
               <div className="flex-1">
                 <div>
                   <h3 className="font-semibold mb-1">Gastos por Categoria</h3>
-                  <div className="text-sm text-[#9CA3AF] mb-2">
-                    Somente despesas do mês selecionado
-                  </div>
                 </div>
                 {chartHasData ? (
                   <div className="flex items-center justify-center">
@@ -482,9 +490,6 @@ export default function App() {
               <div className="flex-1">
                 <div>
                   <h3 className="font-semibold mb-1">Receitas vs Despesas</h3>
-                  <div className="text-sm text-[#9CA3AF] mb-2">
-                    Balanço mensal do mês selecionado
-                  </div>
                 </div>
                 {totalIncome === 0 && totalExpense === 0 ? (
                   <div className="p-6 text-center text-sm text-[#9CA3AF]">
@@ -740,10 +745,36 @@ export default function App() {
 
         {/* MODAL */}
         {selected && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+            onClick={() => {
+              if (!modalEditing) setSelected(null);
+            }}
+          >
             <div
-              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg`}
+              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg relative`}
+              onClick={(e) => e.stopPropagation()}
             >
+              <button
+                aria-label="Close"
+                className="absolute top-3 right-3 text-sm text-[#9CA3AF] hover:text-white"
+                onClick={() => {
+                  setSelected(null);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 015.05 3.636L10 8.586z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
               <h2 className="font-semibold mb-3">Detalhes</h2>
 
               {/* Descrição */}
@@ -752,7 +783,7 @@ export default function App() {
                 className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
                 value={selected.description || ""}
                 onChange={(e) =>
-                  setSelected({ ...selected, description: e.target.value })
+                  updateSelected({ description: e.target.value })
                 }
               />
 
@@ -763,7 +794,7 @@ export default function App() {
                 className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
                 value={selected.amount || ""}
                 onChange={(e) =>
-                  setSelected({ ...selected, amount: Number(e.target.value) })
+                  updateSelected({ amount: Number(e.target.value) })
                 }
               />
 
@@ -772,9 +803,7 @@ export default function App() {
                 type="date"
                 className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
                 value={selected.date || ""}
-                onChange={(e) =>
-                  setSelected({ ...selected, date: e.target.value })
-                }
+                onChange={(e) => updateSelected({ date: e.target.value })}
               />
 
               {/* Tipo */}
@@ -783,8 +812,7 @@ export default function App() {
                 value={selected.type || "expense"}
                 onChange={(e) => {
                   const v = e.target.value;
-                  setSelected({
-                    ...selected,
+                  updateSelected({
                     type: v,
                     category: v === "income" ? "" : selected.category,
                   });
@@ -803,9 +831,7 @@ export default function App() {
                 } p-2 w-full mb-2 rounded-xl`}
                 disabled={selected.type === "income"}
                 value={selected.category || ""}
-                onChange={(e) =>
-                  setSelected({ ...selected, category: e.target.value })
-                }
+                onChange={(e) => updateSelected({ category: e.target.value })}
               >
                 <option value="">Selecione uma categoria</option>
 
@@ -821,9 +847,7 @@ export default function App() {
                 placeholder="Pessoa"
                 className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-3 rounded-xl`}
                 value={selected.person || ""}
-                onChange={(e) =>
-                  setSelected({ ...selected, person: e.target.value })
-                }
+                onChange={(e) => updateSelected({ person: e.target.value })}
               />
 
               <div className="flex justify-end gap-2">
@@ -835,6 +859,7 @@ export default function App() {
                       selected,
                     );
                     setSelected(null);
+                    setModalEditing(false);
                     fetchData();
                   }}
                 >
@@ -862,6 +887,7 @@ export default function App() {
                       `http://localhost:3001/transactions/${selected.id}`,
                     );
                     setSelected(null);
+                    setModalEditing(false);
                     fetchData();
                   }}
                 >
@@ -876,22 +902,39 @@ export default function App() {
                   Excluir
                 </button>
 
-                <button
-                  className={`${dark ? "text-[#9CA3AF]" : "text-gray-700"}`}
-                  onClick={() => setSelected(null)}
-                >
-                  Fechar
-                </button>
+                {/* Close button removed; use top-right X to close */}
               </div>
             </div>
           </div>
         )}
         {/* Duplicate confirmation modal */}
         {showDuplicateModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+            onClick={() => setShowDuplicateModal(false)}
+          >
             <div
-              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg`}
+              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg relative`}
+              onClick={(e) => e.stopPropagation()}
             >
+              <button
+                aria-label="Close"
+                className="absolute top-3 right-3 text-sm text-[#9CA3AF] hover:text-black"
+                onClick={() => setShowDuplicateModal(false)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 015.05 3.636L10 8.586z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
               <h2 className="font-semibold mb-3">Transação duplicada</h2>
               <p className="mb-4 text-sm text-[#9CA3AF]">
                 Duplicate transaction detected. Add anyway?
@@ -932,10 +975,32 @@ export default function App() {
         )}
         {/* Delete all confirmation modal */}
         {showDeleteAllModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+            onClick={() => setShowDeleteAllModal(false)}
+          >
             <div
-              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg`}
+              className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg relative`}
+              onClick={(e) => e.stopPropagation()}
             >
+              <button
+                aria-label="Close"
+                className="absolute top-3 right-3 text-sm text-[#9CA3AF] hover:text-black"
+                onClick={() => setShowDeleteAllModal(false)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 015.05 3.636L10 8.586z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
               <h2 className="font-semibold mb-3">Confirmar exclusão</h2>
               <p className="mb-4 text-sm text-[#9CA3AF]">
                 Você tem certeza que deseja excluir todas as transações
