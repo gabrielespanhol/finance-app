@@ -455,8 +455,11 @@ export default function App() {
               className={`${dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"} p-4 rounded-2xl border mb-6 flex flex-col md:flex-row gap-6 items-center justify-center`}
             >
               <div className="flex-1">
-                <div className="text-sm text-[#9CA3AF] mb-2">
-                  Categorias (Somente Despesas)
+                <div>
+                  <h3 className="font-semibold mb-1">Gastos por Categoria</h3>
+                  <div className="text-sm text-[#9CA3AF] mb-2">
+                    Somente despesas do mês selecionado
+                  </div>
                 </div>
                 {chartHasData ? (
                   <div className="flex items-center justify-center">
@@ -477,8 +480,11 @@ export default function App() {
               </div>
 
               <div className="flex-1">
-                <div className="text-sm text-[#9CA3AF] mb-2">
-                  Receitas vs Despesas (Balanço Mensal)
+                <div>
+                  <h3 className="font-semibold mb-1">Receitas vs Despesas</h3>
+                  <div className="text-sm text-[#9CA3AF] mb-2">
+                    Balanço mensal do mês selecionado
+                  </div>
                 </div>
                 {totalIncome === 0 && totalExpense === 0 ? (
                   <div className="p-6 text-center text-sm text-[#9CA3AF]">
@@ -651,16 +657,30 @@ export default function App() {
                         </td>
                         <td className="p-3 text-sm">{t.date}</td>
                         <td className="p-3 text-sm">{t.description || ""}</td>
-                        <td className="p-3 text-sm flex items-center gap-3">
-                          <span
-                            className="w-4 h-4 rounded-full"
-                            style={{ background: categories[t.category] }}
-                          />
-                          <span style={{ color: dark ? "#EAECEF" : undefined }}>
-                            {t.category}
-                          </span>
+                        <td className="p-3 text-sm">
+                          {t.type === "income" ? (
+                            <span
+                              style={{ color: dark ? "#EAECEF" : undefined }}
+                            >
+                              -
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-3">
+                              <span
+                                className="w-4 h-4 rounded-full"
+                                style={{ background: categories[t.category] }}
+                              />
+                              <span
+                                style={{ color: dark ? "#EAECEF" : undefined }}
+                              >
+                                {t.category}
+                              </span>
+                            </div>
+                          )}
                         </td>
-                        <td className="p-3 text-sm text-right">
+                        <td
+                          className={`p-3 text-sm text-right ${t.type === "expense" ? "text-red-400" : "text-green-300"}`}
+                        >
                           {formatCurrency(t.amount)}
                         </td>
                       </tr>
@@ -681,8 +701,13 @@ export default function App() {
               className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-100 text-gray-900"} p-4 rounded-2xl border`}
             >
               <div className="p-2">
-                <div className="text-sm text-[#9CA3AF] mb-3">
-                  Gastos por categoria (acumulado)
+                <div>
+                  <h3 className="font-semibold mb-1">
+                    Gastos por Categoria (acumulado)
+                  </h3>
+                  <div className="text-sm text-[#9CA3AF] mb-3">
+                    Visão acumulada por categoria
+                  </div>
                 </div>
                 {globalData.reduce((s, g) => s + g.value, 0) === 0 ? (
                   <div className="text-sm text-[#9CA3AF]">
