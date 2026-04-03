@@ -168,6 +168,9 @@ router.post("/upload", (req, res) => {
         if (lines.length > 0 && /date|amount|descricao|description/i.test(lines[0])) start = 1;
         for (let i = start; i < lines.length; i++) {
           const line = lines[i];
+          if (line.includes("Pagamento recebido") || line.includes("Estorno")) {
+            continue;
+          }
           const parts = line.split(",").map((p) => p.trim());
           let date = parts[0];
           let amount = parts[2] || parts[1];
