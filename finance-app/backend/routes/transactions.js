@@ -9,7 +9,7 @@ const upload = multer({
 }).single("file");
 
 const service = require("../services/transactionService");
-const { toISODate, toNumber } = require("../utils");
+const { toISODate, toNumber, resolveTransactionType } = require("../utils");
 
 // GET /transactions
 router.get("/transactions", (req, res) => {
@@ -142,15 +142,18 @@ router.post("/upload", (req, res) => {
           let description = line.substring(dateMatch[0].length, valIndex).trim();
 
           const date = toISODate(dateStr);
-          const amount = toNumber(amtStr);
+          const rawAmount = toNumber(amtStr);
 
-          if (!date || amount === null) continue;
+          if (!date || rawAmount === null) continue;
 
           if (description.includes("COF RESGATE CDB") || description.includes("APLICACAO COFRINHOS")) {
             continue;
           }
 
-          items.push({ date, amount, description });
+          const type = resolveTransactionType(rawAmount, description, "pdf");
+          const amount = Math.abs(rawAmount);
+
+          items.push({ date, amount, type, description });
         }
 
       } else if (ext === "ofx") {
@@ -162,8 +165,13 @@ router.post("/upload", (req, res) => {
           const name = (blk.match(/<NAME>([^<\n]+)/i) || [])[1] || "";
           const memo = (blk.match(/<MEMO>([^<\n]+)/i) || [])[1] || "";
           const date = toISODate(dt);
-          const amount = toNumber(amt);
-          items.push({ date, amount, description: (name || memo).trim() });
+          const rawAmount = toNumber(amt);
+          const description = (name || memo).trim();
+
+          const type = resolveTransactionType(rawAmount, description, "ofx");
+          const amount = Math.abs(rawAmount);
+
+          items.push({ date, amount, type, description });
         });
       } else {
         const content = fs.readFileSync(filePath, "utf-8");
@@ -177,11 +185,14 @@ router.post("/upload", (req, res) => {
           }
           const parts = line.split(",").map((p) => p.trim());
           let date = parts[0];
-          let amount = parts[2] || parts[1];
+          let rawAmount = toNumber(parts[2] || parts[1]);
           let description = parts[1] || parts[2] || "";
           date = toISODate(date);
-          amount = toNumber(amount);
-          items.push({ date, amount, description });
+
+          const type = resolveTransactionType(rawAmount, description, "csv");
+          const amount = Math.abs(rawAmount);
+
+          items.push({ date, amount, type, description });
         }
       }
 

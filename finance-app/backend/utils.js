@@ -50,10 +50,21 @@ function categorize(description, amount) {
   if (!description) return "Outros";
   const s = description.toLowerCase();
   if (/uber|99/.test(s)) return "Transporte";
-  if (/ifood|restaurant|restaurante|mercado|supermercado/.test(s))
+  if (/ifood|restaurant|restaurante|mercado|supermercado/.test(s)) {
+    if (/mercadolivre/.test(s)) return "Compras";
     return "Alimentação";
+  }
   if (/rent|aluguel|condomínio/.test(s)) return "Moradia";
   return "Outros";
 }
 
-module.exports = { toISODate, toNumber, categorize };
+function resolveTransactionType(amount, description, source) {
+  if (source === "csv") {
+    if (/estorno/i.test(description)) return "income";
+    return "expense";
+  }
+  // pdf, ofx, etc.
+  return amount < 0 ? "expense" : "income";
+}
+
+module.exports = { toISODate, toNumber, categorize, resolveTransactionType };

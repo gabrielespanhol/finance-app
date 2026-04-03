@@ -142,7 +142,7 @@ function processUploadItems(items, done) {
         return;
       }
       
-      const type = amount < 0 ? "expense" : "income";
+      const type = it.type || (amount < 0 ? "expense" : "income");
       amount = Math.abs(amount);
       // Auto categorize attempts to guess string
       const categoryStr = categorize(description, amount);

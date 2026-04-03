@@ -29,13 +29,14 @@ db.serialize(() => {
   // Seed default categories (INSERT OR IGNORE)
   const defaults = [
     ["Alimentação", "#ff5900"],
-    ["Moradia", "#7f304d"],
+    ["Moradia", "#911e48ff"],
     ["Transporte", "#ca8712"],
     ["Lazer", "#55b1f7"],
     ["Investimentos", "#f3ff18"],
     ["Saúde", "#69f009"],
     ["Outros", "#6b7280"],
     ["Aurora", "#ee11c6"],
+    ["Compras", "#000dffff"],
   ];
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`
@@ -43,15 +44,15 @@ db.serialize(() => {
   defaults.forEach((d) => stmt.run(d[0], d[1]));
   stmt.finalize(() => {
     // Migration: add category_id column if not exists
-    db.run(`ALTER TABLE transactions ADD COLUMN category_id INTEGER`, function(err) {
+    db.run(`ALTER TABLE transactions ADD COLUMN category_id INTEGER`, function (err) {
       // It will err if column already exists.
       // Next, migrate current transactions to have proper category_id
       db.run(`
         UPDATE transactions 
         SET category_id = (SELECT id FROM categories WHERE categories.name = transactions.category)
         WHERE category_id IS NULL
-      `, function(err) {
-        if(err) console.error("Migration phase 1 error:", err);
+      `, function (err) {
+        if (err) console.error("Migration phase 1 error:", err);
         // Fallback any remaining nulls to Outros
         db.run(`
           UPDATE transactions
