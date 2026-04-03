@@ -133,7 +133,7 @@ function processUploadItems(items, done) {
     
     items.forEach((it) => {
       const date = it.date;
-      const amount = it.amount;
+      let amount = it.amount;
       const description = it.description || "";
       if (!date || amount === null) {
         skipped.push({ ...it, reason: "invalid" });
@@ -142,7 +142,8 @@ function processUploadItems(items, done) {
         return;
       }
       
-      const type = amount > 0 ? "income" : "expense";
+      const type = amount < 0 ? "expense" : "income";
+      amount = Math.abs(amount);
       // Auto categorize attempts to guess string
       const categoryStr = categorize(description, amount);
       

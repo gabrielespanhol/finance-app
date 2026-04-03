@@ -146,6 +146,10 @@ router.post("/upload", (req, res) => {
 
           if (!date || amount === null) continue;
 
+          if (description.includes("COF RESGATE CDB") || description.includes("APLICACAO COFRINHOS")) {
+            continue;
+          }
+
           items.push({ date, amount, description });
         }
 
