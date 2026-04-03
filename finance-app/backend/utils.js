@@ -46,16 +46,19 @@ function toNumber(val) {
   return n;
 }
 
+import { REGRAS_EXTRATO, RegraCategoria } from './config';
+
 function categorize(description, amount) {
   if (!description) return "Outros";
+
   const s = description.toLowerCase();
-  if (/uber|99/.test(s)) return "Transporte";
-  if (/ifood|restaurant|restaurante|mercado|supermercado/.test(s)) {
-    if (/mercadolivre/.test(s)) return "Compras";
-    return "Alimentação";
-  }
-  if (/rent|aluguel|condomínio/.test(s)) return "Moradia";
-  return "Outros";
+
+  // Busca a primeira regra que valida o texto
+  const match = REGRAS_EXTRATO.find((regra) =>
+    regra.regex.test(s)
+  );
+
+  return match ? match.categoria : "Outros";
 }
 
 function resolveTransactionType(amount, description, source) {
