@@ -3,9 +3,9 @@ const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
 
-const upload = multer({ 
+const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: 5 * 1024 * 1024 } 
+  limits: { fileSize: 5 * 1024 * 1024 }
 }).single("file");
 
 const service = require("../services/transactionService");
@@ -99,7 +99,7 @@ router.post("/upload", (req, res) => {
         const currencyRegex = /-?(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2}/g;
 
         for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
+          let line = lines[i]; // 1. Mude apenas aqui de 'const' para 'let'
 
           if (!tableStarted) {
             const l = line.toLowerCase();
@@ -120,17 +120,25 @@ router.post("/upload", (req, res) => {
           const dateMatch = line.match(dateRegex);
           if (!dateMatch) continue;
 
+          // 2. ADICIONE ESTAS 3 LINHAS: Isola a data inicial para protegê-la e corrige os valores grudados apenas no resto da linha
+          const originalDate = dateMatch[0];
+          const restOfLine = line.substring(originalDate.length).replace(/(\d{2}\/\d{2})([-\d])/g, '$1 $2');
+          line = originalDate + restOfLine;
+
           const currencies = line.match(currencyRegex);
           if (!currencies || currencies.length === 0) continue;
 
+          // 3. DAQUI PARA BAIXO, TUDO CONTINUA EXATAMENTE IGUAL AO SEU CÓDIGO ORIGINAL
           let dateStr = dateMatch[1];
           if (dateStr.length === 8) {
             const [d, m, yy] = dateStr.split("/");
             dateStr = `${d}/${m}/20${yy}`;
           }
 
-          const amtStr = currencies[0];
-          const valIndex = line.indexOf(amtStr);
+          const amtStr = currencies[currencies.length - 1];
+          const valIndex = line.lastIndexOf(amtStr);
+          if (!line.trim().endsWith(amtStr)) continue;
+
           let description = line.substring(dateMatch[0].length, valIndex).trim();
 
           const date = toISODate(dateStr);
@@ -172,7 +180,7 @@ router.post("/upload", (req, res) => {
 
       // Delegate business insertion wrapper
       service.processUploadItems(items, ({ inserted, skipped }) => {
-        try { fs.unlinkSync(filePath); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) { }
 
         const duration = Date.now() - startTime;
         console.log(`[Upload Completed] Concluído em ${duration}ms. Importados: ${inserted.length}, Ignorados: ${skipped.length}`);
@@ -189,9 +197,9 @@ router.post("/upload", (req, res) => {
 
     } catch (err) {
       if (filePath) {
-        try { fs.unlinkSync(filePath); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) { }
       }
-      
+
       const duration = Date.now() - startTime;
       console.error(`[Upload Failed] Mensagem: ${err.message} | Duração: ${duration}ms`);
       console.error(err.stack); // Full trace
