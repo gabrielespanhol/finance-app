@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import useTransactions from "../hooks/useTransactions";
 import { formatCurrency } from "../utils/format";
 import TransactionsTable from "../components/TransactionsTable";
+import TransactionModal from "../components/TransactionModal";
 
 export default function Overview({ dark, setDark }) {
   const tx = useTransactions({ dark, setDark });
@@ -80,12 +81,19 @@ export default function Overview({ dark, setDark }) {
     : filterYear;
 
   const [overviewSearch, setOverviewSearch] = useState("");
+  const [tableFilter, setTableFilter] = useState({ category: "", type: "" });
+
   const overviewTableData = useMemo(() => {
     const q = overviewSearch.toLowerCase();
     return [...filtered]
       .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
-      .filter((t) => !q || (t.description || "").toLowerCase().includes(q));
-  }, [filtered, overviewSearch]);
+      .filter((t) => {
+        if (q && !(t.description || "").toLowerCase().includes(q)) return false;
+        if (tableFilter.category && t.category !== tableFilter.category) return false;
+        if (tableFilter.type && t.type !== tableFilter.type) return false;
+        return true;
+      });
+  }, [filtered, overviewSearch, tableFilter]);
 
   return (
     <>
@@ -195,22 +203,65 @@ export default function Overview({ dark, setDark }) {
           <h3 className="font-semibold">Transações — {periodLabel}</h3>
           <span className="text-sm text-[#9CA3AF]">{overviewTableData.length} registros</span>
         </div>
-        <input
-          type="text"
-          placeholder="Buscar por descrição..."
-          value={overviewSearch}
-          onChange={(e) => setOverviewSearch(e.target.value)}
-          className={`w-full mb-3 ${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] placeholder-[#6b7280]" : "bg-white border-gray-200"} p-2 rounded-xl border`}
-        />
+        <div className="flex flex-wrap items-center gap-3 mb-3">
+          <input
+            type="text"
+            placeholder="Buscar por descrição..."
+            value={overviewSearch}
+            onChange={(e) => setOverviewSearch(e.target.value)}
+            className={`flex-1 min-w-[160px] ${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] placeholder-[#6b7280]" : "bg-white border-gray-200"} p-2 rounded-xl border`}
+          />
+          <select
+            value={tableFilter.category}
+            onChange={(e) => setTableFilter((s) => ({ ...s, category: e.target.value }))}
+            className={selectClass}
+          >
+            <option value="">Todas as categorias</option>
+            {(tx.categories || []).map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <select
+            value={tableFilter.type}
+            onChange={(e) => setTableFilter((s) => ({ ...s, type: e.target.value }))}
+            className={selectClass}
+          >
+            <option value="">Tipo (todos)</option>
+            <option value="expense">Despesa</option>
+            <option value="income">Receita</option>
+          </select>
+          {(overviewSearch || tableFilter.category || tableFilter.type) && (
+            <button
+              onClick={() => { setOverviewSearch(""); setTableFilter({ category: "", type: "" }); }}
+              className="text-sm text-[#9CA3AF] px-2 py-1 rounded-xl border"
+            >
+              Limpar
+            </button>
+          )}
+        </div>
         <TransactionsTable
           tableData={overviewTableData}
           selectedIds={[]}
           setSelectedIds={() => {}}
-          setSelected={() => {}}
+          setSelected={tx.setSelected}
           dark={dark}
           categories={tx.categoriesMap}
         />
       </div>
+
+      {tx.selected && (
+        <TransactionModal
+          selected={tx.selected}
+          updateSelected={tx.updateSelected}
+          setSelected={tx.setSelected}
+          dark={dark}
+          fetchData={tx.fetchData}
+          setModalEditing={tx.setModalEditing}
+          updateTransaction={tx.updateTransaction}
+          deleteTransaction={tx.deleteTransaction}
+          categories={tx.categories}
+        />
+      )}
     </>
   );
 }
