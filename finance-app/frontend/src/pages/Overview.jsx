@@ -73,8 +73,8 @@ export default function Overview({ dark, setDark }) {
     .filter((t) => t.type === "income")
     .reduce((s, t) => s + Number(t.amount), 0);
 
-  const cardClass = `${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-100 text-gray-900"} p-4 rounded-2xl border`;
-  const selectClass = `${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} border p-2 rounded-xl text-sm`;
+  const cardClass = "card";
+  const selectClass = "input-base text-sm";
 
   const periodLabel = filterMonth
     ? `${MONTHS.find((m) => m.value === filterMonth)?.label} ${filterYear}`
@@ -128,7 +128,7 @@ export default function Overview({ dark, setDark }) {
         {filterMonth && (
           <button
             onClick={() => setFilterMonth("")}
-            className="text-sm text-[#9CA3AF] px-3 py-2 rounded-xl border border-[#2B3139] hover:opacity-75 transition-opacity"
+            className="btn btn-secondary"
           >
             Limpar mês
           </button>
@@ -138,16 +138,16 @@ export default function Overview({ dark, setDark }) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className={cardClass}>
-          <p className="text-sm text-[#9CA3AF] mb-1">Receitas — {periodLabel}</p>
-          <strong className="text-green-300 text-xl">{formatCurrency(totalIncome)}</strong>
+          <p className="text-muted mb-1">Receitas — {periodLabel}</p>
+          <strong className="text-success text-xl">{formatCurrency(totalIncome)}</strong>
         </div>
         <div className={cardClass}>
-          <p className="text-sm text-[#9CA3AF] mb-1">Despesas — {periodLabel}</p>
-          <strong className="text-red-400 text-xl">{formatCurrency(totalExpense)}</strong>
+          <p className="text-muted mb-1">Despesas — {periodLabel}</p>
+          <strong className="text-danger text-xl">{formatCurrency(totalExpense)}</strong>
         </div>
         <div className={cardClass}>
-          <p className="text-sm text-[#9CA3AF] mb-1">Saldo — {periodLabel}</p>
-          <strong className={`text-xl ${totalIncome - totalExpense >= 0 ? (dark ? "text-green-200" : "text-green-300") : (dark ? "text-red-200" : "text-red-500")}`}>
+          <p className="text-muted mb-1">Saldo — {periodLabel}</p>
+          <strong className={`text-xl ${totalIncome - totalExpense >= 0 ? "text-success" : "text-danger"}`}>
             {formatCurrency(totalIncome - totalExpense)}
           </strong>
         </div>
@@ -157,43 +157,51 @@ export default function Overview({ dark, setDark }) {
       {/* Category Breakdown */}
       <div className={cardClass}>
         <div className="mb-3">
-          <h3 className="font-semibold mb-1">Gastos por Categoria</h3>
-          <p className="text-sm text-[#9CA3AF]">
+          <h3 className="text-h">Gastos por Categoria</h3>
+          <p className="text-muted">
             {filterMonth ? `Visão mensal — ${periodLabel}` : `Visão anual — ${filterYear}`}
           </p>
         </div>
 
         {categoryTotals.length === 0 ? (
-          <div className="text-sm text-[#9CA3AF] py-6 text-center">Não há dados</div>
+          <div className="text-muted p-6 text-center">Não há dados</div>
         ) : (
           <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {categoryTotals.map((cat) => {
               const pct = totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0;
               return (
                 <div key={cat.name}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <span
-                        className="w-3 h-3 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: cat.color }}
+                       <span
+                        className="inline-block"
+                        style={{ 
+                          width: '8px', 
+                          height: '8px', 
+                          borderRadius: '50%', 
+                          backgroundColor: cat.color,
+                          flexShrink: 0
+                        }}
                       />
-                      <span className="text-sm">{cat.name}</span>
+                      <span>{cat.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-[#9CA3AF]">{pct.toFixed(1)}%</span>
-                      <span className="text-sm font-medium">{formatCurrency(cat.value)}</span>
+                      <span className="text-xs text-muted">{pct.toFixed(1)}%</span>
+                      <span className="font-medium">{formatCurrency(cat.value)}</span>
                     </div>
                   </div>
                   {/* Progress bar */}
-                  <div className={`w-full h-1.5 rounded-full ${dark ? "bg-[#2B3139]" : "bg-gray-100"}`}>
+                  <div className="w-full rounded-full overflow-hidden" style={{ height: '0.4rem', backgroundColor: 'var(--color-border-soft)' }}>
                     <div
-                      className="h-1.5 rounded-full transition-all duration-500"
+                      className="h-full transition-all duration-500"
                       style={{ width: `${pct}%`, backgroundColor: cat.color }}
                     />
                   </div>
                 </div>
               );
             })}
+          </div>
           </div>
         )}
       </div>
@@ -209,7 +217,8 @@ export default function Overview({ dark, setDark }) {
             placeholder="Buscar por descrição..."
             value={overviewSearch}
             onChange={(e) => setOverviewSearch(e.target.value)}
-            className={`flex-1 min-w-[160px] ${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] placeholder-[#6b7280]" : "bg-white border-gray-200"} p-2 rounded-xl border`}
+            className="input-base flex-1"
+            style={{ minWidth: '160px' }}
           />
           <select
             value={tableFilter.category}
@@ -233,7 +242,7 @@ export default function Overview({ dark, setDark }) {
           {(overviewSearch || tableFilter.category || tableFilter.type) && (
             <button
               onClick={() => { setOverviewSearch(""); setTableFilter({ category: "", type: "" }); }}
-              className="text-sm text-[#9CA3AF] px-2 py-1 rounded-xl border"
+              className="btn btn-secondary btn-icon"
             >
               Limpar
             </button>

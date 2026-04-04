@@ -11,31 +11,31 @@ export default function ConfirmModal({
   if (!show) return null;
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+      className="modal-overlay"
       onClick={onCancel}
     >
       <div
-        className={`p-4 rounded-2xl w-full max-w-md border shadow-lg relative bg-white text-gray-900`}
+        className="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           aria-label="Close"
-          className="absolute top-3 right-3 text-sm text-[#9CA3AF] hover:text-black"
+          className="absolute top-4 right-4 text-muted transition-colors"
           onClick={onCancel}
         >
           ✕
         </button>
-        <h2 className="font-semibold mb-3">{title}</h2>
-        <p className="mb-4 text-sm text-[#9CA3AF]">{message}</p>
-        <div className="flex justify-end gap-2">
+        <h2 className="text-lg font-semibold mb-3">{title}</h2>
+        <p className="mb-4 text-sm text-muted">{message}</p>
+        <div className="flex justify-end gap-3 mt-4">
           <button
-            className="bg-gray-200 text-gray-800 px-3 py-1 rounded-2xl"
+            className="btn btn-secondary"
             onClick={onCancel}
           >
             Cancelar
           </button>
           <button
-            className="bg-red-600 text-white px-3 py-1 rounded-2xl"
+            className="btn btn-danger"
             onClick={onConfirm}
           >
             {confirmLabel}

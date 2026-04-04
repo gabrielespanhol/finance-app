@@ -31,7 +31,7 @@ export default function Dashboard({ dark, setDark }) {
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrevMonth}
-            className={`flex items-center justify-center p-2 px-3 rounded-xl border transition-colors ${tx.dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] hover:bg-[#2B3139]" : "bg-white border-gray-200 hover:bg-gray-50"}`}
+            className="btn btn-secondary btn-icon"
           >
             ←
           </button>
@@ -39,47 +39,41 @@ export default function Dashboard({ dark, setDark }) {
             type="month"
             value={tx.month}
             onChange={(e) => tx.setMonth(e.target.value)}
-            className={`${tx.dark ? "bg-[#1E2329] border-[#2B3139] placeholder-[#9CA3AF] text-[#EAECEF]" : "bg-white border-gray-200"} border p-2 rounded-xl`}
+            className="input-base"
           />
           <button
             onClick={handleNextMonth}
-            className={`flex items-center justify-center p-2 px-3 rounded-xl border transition-colors ${tx.dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] hover:bg-[#2B3139]" : "bg-white border-gray-200 hover:bg-gray-50"}`}
+            className="btn btn-secondary btn-icon"
           >
             →
           </button>
         </div>
-        <div className="text-sm text-[#9CA3AF]">Mês: {tx.month}</div>
+        <div className="text-muted">Mês: {tx.month}</div>
       </div>
 
       {/* SUMMARY CARDS (kept simple, reused existing values) */}
       <h2 className="font-semibold mb-2">Balanço Mensal</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div
-          className={`p-4 rounded-2xl border ${tx.dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"}`}
-        >
-          <p className="text-sm text-[#9CA3AF]">Receitas</p>
-          <strong className="text-green-300 text-xl">
+        <div className="card">
+          <p className="text-muted">Receitas</p>
+          <strong className="text-success text-xl">
             {tx.filtered.length === 0
               ? "R$0,00"
               : formatCurrency(tx.totalIncome)}
           </strong>
         </div>
-        <div
-          className={`p-4 rounded-2xl border ${tx.dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"}`}
-        >
-          <p className="text-sm text-[#9CA3AF]">Despesas</p>
-          <strong className="text-red-400 text-xl">
+        <div className="card">
+          <p className="text-muted">Despesas</p>
+          <strong className="text-danger text-xl">
             {tx.filtered.length === 0
               ? "R$0,00"
               : formatCurrency(tx.totalExpense)}
           </strong>
         </div>
-        <div
-          className={`p-4 rounded-2xl border ${tx.dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"}`}
-        >
-          <p className="text-sm text-[#9CA3AF]">Saldo</p>
+        <div className="card">
+          <p className="text-muted">Saldo</p>
           <strong
-            className={`text-xl ${tx.balance >= 0 ?(dark ? "text-green-200" : "text-green-300") : (dark ? "text-red-200" : "text-red-500")}`}
+            className={`text-xl ${tx.balance >= 0 ? "text-success" : "text-danger"}`}
           >
             {tx.filtered.length === 0 ? "R$0,00" : formatCurrency(tx.balance)}
           </strong>
@@ -87,24 +81,22 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       {/* FORM + UPLOAD (kept inline to avoid moving many props) */}
-      <div
-        className={`${tx.dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"} p-4 rounded-2xl border mb-6`}
-      >
-        <h2 className="font-semibold mb-3">Adicionar Transação</h2>
+      <div className="card mb-6">
+        <h2 className="text-h">Adicionar Transação</h2>
         <form
           onSubmit={tx.handleSubmit}
           className="flex flex-wrap gap-3 mb-3 items-center"
         >
           <input
             type="date"
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
+            className="input-base"
             value={tx.form.date}
             onChange={(e) => tx.setForm({ ...tx.form, date: e.target.value })}
           />
           <input
             type="text"
             placeholder="Valor"
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl w-32`}
+            className="input-base w-32"
             value={
               tx.amountInput ||
               (tx.form.amount ? formatCurrency(tx.form.amount) : "")
@@ -121,7 +113,7 @@ export default function Dashboard({ dark, setDark }) {
             }}
           />
           <select
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
+            className="input-base"
             value={tx.form.type}
             onChange={(e) => {
               const v = e.target.value;
@@ -137,7 +129,7 @@ export default function Dashboard({ dark, setDark }) {
           </select>
           <select
             disabled={tx.form.type === "income"}
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl ${tx.form.type === "income" ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`input-base ${tx.form.type === "income" ? "opacity-60 cursor-not-allowed" : ""}`}
             value={tx.form.category}
             onChange={(e) =>
               tx.setForm({ ...tx.form, category: e.target.value })
@@ -152,7 +144,7 @@ export default function Dashboard({ dark, setDark }) {
           </select>
           <input
             placeholder="Descrição"
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl flex-1 min-w-[160px]`}
+            className="input-base flex-1 min-w-[160px]"
             value={tx.form.description}
             onChange={(e) =>
               tx.setForm({ ...tx.form, description: e.target.value })
@@ -160,7 +152,7 @@ export default function Dashboard({ dark, setDark }) {
           />
           <button
             disabled={!tx.isFormValid}
-            className={`bg-[#FCD535] text-black px-4 py-2 rounded-2xl shadow-sm ${!tx.isFormValid ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`btn btn-primary ${!tx.isFormValid ? "opacity-60 cursor-not-allowed" : ""}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -204,10 +196,8 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       {/* CHARTS */}
-      <h2 className="font-semibold mb-2">Gastos por Categoria</h2>
-      <div
-        className={`${tx.dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"} p-4 rounded-2xl border mb-6`}
-      >
+      <h2 className="text-h mt-4">Gastos por Categoria</h2>
+      <div className="card mb-6">
         <Charts
           chartData={tx.chartData}
           balancePieData={tx.balancePieData}
@@ -217,13 +207,13 @@ export default function Dashboard({ dark, setDark }) {
 
       {/* Transactions table + controls */}
       <div className="flex items-center justify-between mb-2">
-        <h2 className="font-semibold">Extrato do Mês</h2>
+        <h2 className="text-h m-0">Extrato do Mês</h2>
         <div className="flex items-center gap-2">
           {tx.selectedIds.length > 0 && (
-            <div className="text-sm text-[#9CA3AF] flex items-center gap-2 mr-2">
+            <div className="text-sm text-muted flex items-center gap-2 mr-2">
               <span className="font-medium">{tx.selectedIds.length}</span>
-              <span className="text-[#6b7280]">/</span>
-              <span className="text-[#9CA3AF]">{tx.tableData.length}</span>
+              <span style={{ color: '#6b7280' }}>/</span>
+              <span className="text-muted">{tx.tableData.length}</span>
             </div>
           )}
           <button
@@ -242,7 +232,7 @@ export default function Dashboard({ dark, setDark }) {
               tx.setSelectedIds([]);
               tx.fetchData();
             }}
-            className={`flex items-center gap-2 bg-red-500 text-white px-3 py-1 rounded-2xl ${tx.selectedIds.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`btn btn-danger ${tx.selectedIds.length === 0 ? "opacity-60" : ""}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -264,14 +254,15 @@ export default function Dashboard({ dark, setDark }) {
           placeholder="Buscar por descrição..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF] placeholder-[#6b7280]" : "bg-white border-gray-200"} p-2 rounded-xl border flex-1 min-w-[180px]`}
+          className="input-base flex-1"
+          style={{ minWidth: '180px' }}
         />
         <select
           value={tx.tableFilters.category}
           onChange={(e) =>
             tx.setTableFilters((s) => ({ ...s, category: e.target.value }))
           }
-          className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
+          className="input-base"
         >
           <option value="">Todas as categorias</option>
           {(tx.categories || []).map((c) => (
@@ -285,7 +276,7 @@ export default function Dashboard({ dark, setDark }) {
           onChange={(e) =>
             tx.setTableFilters((s) => ({ ...s, type: e.target.value }))
           }
-          className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200"} p-2 rounded-xl`}
+          className="input-base"
         >
           <option value="">Tipo (todos)</option>
           <option value="expense">Despesa</option>
@@ -293,7 +284,7 @@ export default function Dashboard({ dark, setDark }) {
         </select>
         <button
           onClick={() => tx.setTableFilters({ category: "", type: "" })}
-          className="text-sm text-[#9CA3AF] px-2 py-1 rounded-xl border"
+          className="btn btn-secondary btn-icon"
         >
           Limpar
         </button>

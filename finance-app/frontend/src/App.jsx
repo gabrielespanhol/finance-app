@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Dashboard from "./pages/Dashboard";
 import Overview from "./pages/Overview";
 import CategoriesPage from "./pages/CategoriesPage";
@@ -7,11 +7,13 @@ export default function App() {
   const [tab, setTab] = useState("dashboard");
   const [dark, setDark] = useState(true);
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }, [dark]);
+
   return (
-    <div
-      className={`${dark ? "bg-[#181A20] text-[#EAECEF]" : "bg-gray-50 text-gray-900"} min-h-screen p-6 transition-colors`}
-    >
-      <header className="max-w-6xl mx-auto mb-6">
+    <div className="min-h-screen p-6 transition-colors">
+      <header className="container-main mb-6">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Finance</h1>
@@ -20,10 +22,10 @@ export default function App() {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-4 py-2 rounded-2xl text-sm font-medium transition-colors ${
+                  className={`btn px-4 py-2 border-0 ${
                     tab === t
-                      ? "bg-[#FCD535] text-black"
-                      : `${dark ? "text-[#9CA3AF]" : "text-gray-500"}`
+                      ? "btn-primary"
+                      : "text-muted"
                   }`}
                 >
                   {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Overview" : "Categorias"}
@@ -33,16 +35,14 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+            <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
               <span className="text-xs">Light</span>
               <button
                 onClick={() => setDark(!dark)}
-                className={`w-12 h-6 rounded-full p-1 transition-colors ${dark ? "bg-[#111214] justify-end flex" : "bg-gray-200 justify-start flex"}`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${dark ? "bg-[#111214]" : "bg-gray-200"}`}
                 aria-label="Toggle theme"
               >
-                <span
-                  className={`w-4 h-4 rounded-full bg-white shadow ${dark ? "" : ""}`}
-                />
+                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${dark ? "right-1" : "left-1"}`} />
               </button>
               <span className="text-xs">Dark</span>
             </label>
@@ -50,7 +50,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto">
+      <main className="container-main">
         {tab === "dashboard" && <Dashboard dark={dark} setDark={setDark} />}
         {tab === "planejamento" && <Overview dark={dark} setDark={setDark} />}
         {tab === "categorias" && <CategoriesPage dark={dark} setDark={setDark} />}

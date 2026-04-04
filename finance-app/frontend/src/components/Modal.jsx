@@ -28,30 +28,30 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[9999] transition-opacity"
+      className="modal-overlay"
       onClick={onCancel || (() => {})}
     >
       <div
-        className={`p-6 rounded-2xl w-full max-w-sm border shadow-xl relative ${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900 border-gray-100"}`}
+        className="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {onCancel && (
           <button
             aria-label="Close"
-            className="absolute top-4 right-4 text-sm text-[#9CA3AF] hover:text-current transition-colors"
+            className="absolute top-4 right-4 text-sm text-muted transition-colors"
             onClick={onCancel}
           >
             ✕
           </button>
         )}
-        {title && <h2 className="font-semibold mb-3 text-lg">{title}</h2>}
-        {message && <p className={`mb-4 text-sm ${dark ? "text-[#9CA3AF]" : "text-gray-500"}`}>{message}</p>}
+        {title && <h2 className="text-lg font-semibold mb-3">{title}</h2>}
+        {message && <p className="mb-4 text-sm text-muted">{message}</p>}
         
         {type === "prompt" && (
           <input
             type="text"
             autoFocus
-            className={`w-full p-2 mb-4 rounded-xl outline-none focus:ring-2 focus:ring-[#FCD535] ${dark ? "bg-[#151719] border border-[#2B3139] text-[#EAECEF]" : "bg-gray-50 border border-gray-200 text-gray-900"}`}
+            className="input-base w-full mb-4"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
@@ -61,7 +61,7 @@ export default function Modal({
         <div className="flex justify-end gap-3 mt-4">
           {showCancel && onCancel && (
             <button
-              className={`px-4 py-2 rounded-2xl text-sm font-medium transition-colors ${dark ? "text-[#9CA3AF] hover:bg-[#2B3139]" : "text-gray-500 hover:bg-gray-100"}`}
+              className="btn btn-secondary"
               onClick={onCancel}
             >
               Cancelar
@@ -69,7 +69,7 @@ export default function Modal({
           )}
           {onConfirm && (
             <button
-              className={`px-4 py-2 rounded-2xl text-sm font-medium transition-colors ${danger ? "bg-red-500 text-white hover:bg-red-600" : "bg-[#FCD535] text-black hover:bg-[#FFE055]"}`}
+              className={`btn ${danger ? "btn-danger" : "btn-primary"}`}
               onClick={handleConfirm}
             >
               {confirmLabel}

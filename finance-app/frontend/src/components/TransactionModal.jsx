@@ -20,18 +20,17 @@ export default function TransactionModal({
       : availableCategories;
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
-      onClick={() => {
-        if (!false) setSelected(null);
-      }}
+      className="modal-overlay"
+      onClick={() => setSelected(null)}
     >
       <div
-        className={`${dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF]" : "bg-white text-gray-900"} p-4 rounded-2xl w-full max-w-md border shadow-lg relative`}
+        className="modal-content"
+        style={{ maxWidth: '28rem' }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           aria-label="Close"
-          className="absolute top-3 right-3 text-sm text-[#9CA3AF] hover:text-white"
+          className="absolute top-4 right-4 text-muted transition-colors"
           onClick={() => setSelected(null)}
         >
           <svg
@@ -47,64 +46,66 @@ export default function TransactionModal({
             />
           </svg>
         </button>
-        <h2 className="font-semibold mb-3">Detalhes</h2>
+        <h2 className="text-lg font-semibold mb-3">Detalhes</h2>
 
-        <input
-          placeholder="Descrição"
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
-          value={selected.description || ""}
-          onChange={(e) => updateSelected({ description: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Valor"
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
-          value={selected.amount || ""}
-          onChange={(e) => updateSelected({ amount: Number(e.target.value) })}
-        />
-        <input
-          type="date"
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
-          value={selected.date || ""}
-          onChange={(e) => updateSelected({ date: e.target.value })}
-        />
-        <select
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
-          value={selected.type || "expense"}
-          onChange={(e) => {
-            const v = e.target.value;
-            updateSelected({
-              type: v,
-              category: v === "income" ? "" : selected.category,
-            });
-          }}
-        >
-          <option value="expense">Despesa</option>
-          <option value="income">Receita</option>
-        </select>
-        <select
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-2 rounded-xl`}
-          disabled={selected.type === "income"}
-          value={selected.category || ""}
-          onChange={(e) => updateSelected({ category: e.target.value })}
-        >
-          <option value="">Selecione uma categoria</option>
-          {optionsList.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <input
-          placeholder="Pessoa"
-          className={`${dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF]" : "bg-white border-gray-200 text-gray-900"} p-2 w-full mb-3 rounded-xl`}
-          value={selected.person || ""}
-          onChange={(e) => updateSelected({ person: e.target.value })}
-        />
+        <div className="flex flex-col gap-2 mb-4">
+          <input
+            placeholder="Descrição"
+            className="input-base w-full"
+            value={selected.description || ""}
+            onChange={(e) => updateSelected({ description: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Valor"
+            className="input-base w-full"
+            value={selected.amount || ""}
+            onChange={(e) => updateSelected({ amount: Number(e.target.value) })}
+          />
+          <input
+            type="date"
+            className="input-base w-full"
+            value={selected.date || ""}
+            onChange={(e) => updateSelected({ date: e.target.value })}
+          />
+          <select
+            className="input-base w-full"
+            value={selected.type || "expense"}
+            onChange={(e) => {
+              const v = e.target.value;
+              updateSelected({
+                type: v,
+                category: v === "income" ? "" : selected.category,
+              });
+            }}
+          >
+            <option value="expense">Despesa</option>
+            <option value="income">Receita</option>
+          </select>
+          <select
+            className="input-base w-full"
+            disabled={selected.type === "income"}
+            value={selected.category || ""}
+            onChange={(e) => updateSelected({ category: e.target.value })}
+          >
+            <option value="">Selecione uma categoria</option>
+            {optionsList.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <input
+            placeholder="Pessoa"
+            className="input-base w-full"
+            value={selected.person || ""}
+            onChange={(e) => updateSelected({ person: e.target.value })}
+          />
+        </div>
 
         <div className="flex justify-end gap-2">
           <button
-            className="bg-[#FCD535] text-black px-3 py-1 rounded-2xl"
+            className="btn btn-primary"
             onClick={async () => {
               await updateTransaction(selected.id, selected);
               setModalEditing(false);
@@ -115,7 +116,7 @@ export default function TransactionModal({
             Salvar
           </button>
           <button
-            className="bg-red-500 text-white px-3 py-1 rounded-2xl"
+            className="btn btn-danger"
             onClick={async () => {
               await deleteTransaction(selected.id);
               setModalEditing(false);

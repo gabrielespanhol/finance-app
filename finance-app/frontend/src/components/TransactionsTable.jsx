@@ -10,18 +10,14 @@ export default function TransactionsTable({
   categories = {},
 }) {
   return (
-    <div
-      className={`${dark ? "bg-[#1E2329] border-[#2B3139]" : "bg-white border-gray-100"} rounded-2xl border overflow-hidden`}
-    >
-      <table className="w-full">
-        <thead
-          className={`${dark ? "bg-[#141619] text-[#9CA3AF]" : "bg-gray-50 text-gray-600"}`}
-        >
+    <div className="table-container">
+      <table>
+        <thead>
           <tr>
-            <th className="p-3 text-left">
+            <th>
               <input
                 type="checkbox"
-                className="appearance-none w-5 h-5 rounded-full border transition-colors checked:bg-[#FCD535] checked:border-[#FCD535] focus:outline-none"
+                className="checkbox-custom"
                 checked={
                   selectedIds.length === tableData.length &&
                   tableData.length > 0
@@ -33,19 +29,16 @@ export default function TransactionsTable({
                 }}
               />
             </th>
-            <th className="p-3 text-left">Data</th>
-            <th className="p-3 text-left">Descrição</th>
-            <th className="p-3 text-left">Categoria</th>
-            <th className="p-3 text-right">Valor</th>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th className="text-right">Valor</th>
           </tr>
         </thead>
         <tbody>
           {tableData.length === 0 ? (
             <tr>
-              <td
-                colSpan={5}
-                className="p-6 text-center text-sm text-[#9CA3AF]"
-              >
+              <td colSpan={5} className="p-6 text-center text-sm text-muted">
                 No data available
               </td>
             </tr>
@@ -54,13 +47,13 @@ export default function TransactionsTable({
               <tr
                 key={t.id}
                 onClick={() => setSelected(t)}
-                className={`cursor-pointer transition-colors ${dark ? "hover:bg-[#212428]" : "hover:bg-gray-50"}`}
+                className="cursor-pointer"
               >
-                <td className="p-3 text-sm">
+                <td>
                   <input
                     onClick={(e) => e.stopPropagation()}
                     type="checkbox"
-                    className="appearance-none w-5 h-5 rounded-full border transition-colors checked:bg-[#FCD535] checked:border-[#FCD535] focus:outline-none"
+                    className="checkbox-custom"
                     checked={selectedIds.includes(t.id)}
                     onChange={(e) => {
                       if (e.target.checked) setSelectedIds((s) => [...s, t.id]);
@@ -68,27 +61,29 @@ export default function TransactionsTable({
                     }}
                   />
                 </td>
-                <td className="p-3 text-sm">{t.date}</td>
-                <td className="p-3 text-sm">{t.description || ""}</td>
-                <td className="p-3 text-sm">
+                <td>{t.date}</td>
+                <td>{t.description || ""}</td>
+                <td>
                   {t.type === "income" ? (
-                    <span style={{ color: dark ? "#EAECEF" : undefined }}>
-                      -
-                    </span>
+                    "-"
                   ) : (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span
-                        className="w-4 h-4 rounded-full"
-                        style={{ background: categories[t.category] }}
+                        className="inline-block"
+                        style={{ 
+                          width: '8px', 
+                          height: '8px', 
+                          borderRadius: '50%', 
+                          backgroundColor: categories[t.category] || '#888888',
+                          flexShrink: 0
+                        }}
                       />
-                      <span style={{ color: dark ? "#EAECEF" : undefined }}>
-                        {t.category}
-                      </span>
+                      <span className="text-sm">{t.category}</span>
                     </div>
                   )}
                 </td>
                 <td
-                  className={`p-3 text-sm text-right ${t.type === "expense" ? "text-red-400" : "text-green-300"}`}
+                  className={`text-right ${t.type === "expense" ? "text-danger" : "text-success"}`}
                 >
                   {formatCurrency(t.amount)}
                 </td>
