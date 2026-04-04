@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import TransactionsTable from "../components/TransactionsTable";
 import TransactionModal from "../components/TransactionModal";
 import Modal from "../components/Modal";
@@ -8,6 +8,7 @@ import { formatCurrency } from "../utils/format";
 
 export default function Dashboard({ dark, setDark }) {
   const tx = useTransactions({ dark, setDark });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handlePrevMonth = () => {
     if (!tx.month) return;
@@ -78,7 +79,7 @@ export default function Dashboard({ dark, setDark }) {
         >
           <p className="text-sm text-[#9CA3AF]">Saldo</p>
           <strong
-            className={`text-xl ${tx.balance >= 0 ? "text-white" : "text-red-200"}`}
+            className={`text-xl ${tx.balance >= 0 ?(dark ? "text-green-200" : "text-green-300") : (dark ? "text-red-200" : "text-red-500")}`}
           >
             {tx.filtered.length === 0 ? "R$0,00" : formatCurrency(tx.balance)}
           </strong>
@@ -257,6 +258,14 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-3">
+        {/* Search filter */}
+        <input
+          type="text"
+          placeholder="Buscar por descrição..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#EAECEF] placeholder-[#6b7280]" : "bg-white border-gray-200"} p-2 rounded-xl border flex-1 min-w-[180px]`}
+        />
         <select
           value={tx.tableFilters.category}
           onChange={(e) =>
@@ -291,7 +300,12 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       <TransactionsTable
-        tableData={tx.tableData}
+        tableData={useMemo(
+          () => tx.tableData.filter((t) =>
+            !searchQuery || (t.description || "").toLowerCase().includes(searchQuery.toLowerCase())
+          ),
+          [tx.tableData, searchQuery]
+        )}
         selectedIds={tx.selectedIds}
         setSelectedIds={tx.setSelectedIds}
         setSelected={tx.setSelected}

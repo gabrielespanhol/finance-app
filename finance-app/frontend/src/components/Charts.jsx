@@ -1,5 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { formatCurrency } from "../utils/format";
 
 const EmptyState = () => (
   <div className="p-6 text-center text-sm text-[#9CA3AF] w-full h-[250px] flex items-center justify-center">
@@ -51,7 +52,7 @@ export default function Charts({
                       <Cell key={i} fill={categories[e.name] || "#8884d8"} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(v) => formatCurrency(v)} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -81,7 +82,7 @@ export default function Charts({
                       <Cell key={i} fill={e.name === "Receitas" ? "#10b981" : "#ef4444"} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(v) => formatCurrency(v)} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

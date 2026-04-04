@@ -28,19 +28,19 @@ db.serialize(() => {
 
   // Seed default categories (INSERT OR IGNORE)
   const defaults = [
-    ["Alimentação", "#ff5900"],
-    ["Moradia", "#911e48ff"],
-    ["Transporte", "#ca8712"],
-    ["Lazer", "#55b1f7"],
-    ["Investimentos", "#f3ff18"],
-    ["Saúde", "#69f009"],
-    ["Outros", "#6b7280"],
-    ["Aurora", "#ee11c6"],
-    ["Compras", "#000dffff"],
-    ["Financiamento", "#00ffff"],
-    ["Educação", "#056363ff"],
-    ["Dizimo", "#053f63ff"],
-    ["Pessoal", "#03592aff"]
+    ["Alimentação", "#f97316"],     // laranja (comida → quente/apetite)
+    ["Moradia", "#7c3aed"],        // roxo (estável, custo alto)
+    ["Transporte", "#2563eb"],     // azul (movimento, deslocamento)
+    ["Lazer", "#033e49ff"],          // azul claro (leve, diversão)
+    ["Investimentos", "#74f0a1ff"],  // verde (crescimento financeiro)
+    ["Saúde", "#fc8282ff"],          // vermelho suave (atenção/cuidado)
+    ["Outros", "#6b7280"],         // cinza (neutro)
+    ["Aurora", "#d946ef"],         // rosa/roxo vibrante (diferente mesmo)
+    ["Compras", "#ec1438ff"],        // rosa/vermelho (consumo)
+    ["Financiamento", "#0ea5e9"],  // azul médio (institucional/banco)
+    ["Educação", "#09ecd2ff"],       // verde-água (conhecimento/equilíbrio)
+    ["Dizimo", "#ead708ff"],         // amarelo (espiritual/oferta)
+    ["Pessoal", "#08aa74ff"]         // verde mais suave (vida pessoal)
   ];
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`
