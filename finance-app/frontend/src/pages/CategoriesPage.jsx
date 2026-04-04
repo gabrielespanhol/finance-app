@@ -36,7 +36,7 @@ export default function CategoriesPage({ dark, setDark }) {
           />
           <input
             type="color"
-            className="input-base p-1 h-10 w-16 cursor-pointer"
+            className="input-color"
             value={!isEditing ? cat.form.color : "#888888"}
             onChange={(e) => !isEditing && cat.setForm({ ...cat.form, color: e.target.value })}
             disabled={isEditing}
@@ -117,7 +117,7 @@ export default function CategoriesPage({ dark, setDark }) {
                 <label className="text-sm">Cor:</label>
                 <input
                   type="color"
-                  className="input-base p-1 h-10 w-16 cursor-pointer"
+                  className="input-color"
                   value={cat.form.color}
                   onChange={(e) => cat.setForm({ ...cat.form, color: e.target.value })}
                 />

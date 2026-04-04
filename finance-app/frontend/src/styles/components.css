@@ -102,6 +102,26 @@
   box-shadow: 0 0 0 3px var(--color-primary-alpha-15);
 }
 
+.input-color {
+  padding: 0;
+  width: 3.5rem;
+  height: 2.0rem;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  background-color: var(--color-surface-inner);
+}
+
+.input-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.input-color::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
 /* MODAL */
 .modal-overlay {
   position: fixed;

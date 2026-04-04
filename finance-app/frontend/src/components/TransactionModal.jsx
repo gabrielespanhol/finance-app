@@ -33,18 +33,7 @@ export default function TransactionModal({
           className="absolute top-4 right-4 text-muted transition-colors"
           onClick={() => setSelected(null)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 015.05 3.636L10 8.586z"
-              clipRule="evenodd"
-            />
-          </svg>
+          ✕
         </button>
         <h2 className="text-lg font-semibold mb-3">Detalhes</h2>
 
