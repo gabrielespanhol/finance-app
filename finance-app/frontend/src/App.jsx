@@ -17,7 +17,7 @@ export default function App() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Finance</h1>
-            <nav className="flex bg-transparent rounded-2xl p-1">
+            <nav className="flex items-center gap-4 bg-transparent rounded-2xl p-1 ml-4">
               {["dashboard", "planejamento", "categorias"].map((t) => (
                 <button
                   key={t}
