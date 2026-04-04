@@ -37,6 +37,10 @@ db.serialize(() => {
     ["Outros", "#6b7280"],
     ["Aurora", "#ee11c6"],
     ["Compras", "#000dffff"],
+    ["Financiamento", "#00ffff"],
+    ["Educação", "#056363ff"],
+    ["Dizimo", "#053f63ff"],
+    ["Pessoal", "#03592aff"]
   ];
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO categories (name, color) VALUES (?, ?)`

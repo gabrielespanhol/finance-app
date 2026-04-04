@@ -1,4 +1,5 @@
 // Utilities: date and number parsing and simple categorization
+const { REGRAS_EXTRATO } = require('./interfaces/categories');
 
 function toISODate(val) {
   if (!val) return null;
@@ -46,7 +47,6 @@ function toNumber(val) {
   return n;
 }
 
-import { REGRAS_EXTRATO, RegraCategoria } from './config';
 
 function categorize(description, amount) {
   if (!description) return "Outros";

@@ -9,16 +9,44 @@ import { formatCurrency } from "../utils/format";
 export default function Dashboard({ dark, setDark }) {
   const tx = useTransactions({ dark, setDark });
 
+  const handlePrevMonth = () => {
+    if (!tx.month) return;
+    const [y, m] = tx.month.split("-");
+    const prev = new Date(parseInt(y), parseInt(m) - 2, 1);
+    tx.setMonth(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`);
+  };
+
+  const handleNextMonth = () => {
+    if (!tx.month) return;
+    const [y, m] = tx.month.split("-");
+    const next = new Date(parseInt(y), parseInt(m), 1);
+    tx.setMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
+  };
+
   return (
     <>
       {/* FILTER + MONTH */}
       <div className="flex items-center justify-between gap-4 mb-6">
-        <input
-          type="month"
-          value={tx.month}
-          onChange={(e) => tx.setMonth(e.target.value)}
-          className={`${tx.dark ? "bg-[#1E2329] border-[#2B3139] placeholder-[#9CA3AF] text-[#EAECEF]" : "bg-white border-gray-200"} border p-2 rounded-xl`}
-        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrevMonth}
+            className={`flex items-center justify-center p-2 px-3 rounded-xl border transition-colors ${tx.dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] hover:bg-[#2B3139]" : "bg-white border-gray-200 hover:bg-gray-50"}`}
+          >
+            ←
+          </button>
+          <input
+            type="month"
+            value={tx.month}
+            onChange={(e) => tx.setMonth(e.target.value)}
+            className={`${tx.dark ? "bg-[#1E2329] border-[#2B3139] placeholder-[#9CA3AF] text-[#EAECEF]" : "bg-white border-gray-200"} border p-2 rounded-xl`}
+          />
+          <button
+            onClick={handleNextMonth}
+            className={`flex items-center justify-center p-2 px-3 rounded-xl border transition-colors ${tx.dark ? "bg-[#1E2329] border-[#2B3139] text-[#EAECEF] hover:bg-[#2B3139]" : "bg-white border-gray-200 hover:bg-gray-50"}`}
+          >
+            →
+          </button>
+        </div>
         <div className="text-sm text-[#9CA3AF]">Mês: {tx.month}</div>
       </div>
 
