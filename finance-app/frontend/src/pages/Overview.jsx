@@ -165,33 +165,33 @@ export default function Overview({ dark, setDark }) {
         {categoryTotals.length === 0 ? (
           <div className="text-muted p-10 text-center bg-surface-inner rounded-xl border border-dashed border-border">Não há despesas registradas</div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
             {categoryTotals.map((cat) => {
               const pct = totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0;
               return (
-                <div key={cat.name} className="p-4 rounded-xl hover:bg-surface-inner border border-transparent hover:border-border-soft transition-all">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={cat.name} className="p-2 px-3 rounded-xl hover:bg-surface-inner border border-transparent hover:border-border-soft transition-all">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                        <span
                         className="inline-block"
                         style={{ 
-                          width: '10px', 
-                          height: '10px', 
+                          width: '8px', 
+                          height: '8px', 
                           borderRadius: '50%', 
                           backgroundColor: cat.color,
                           flexShrink: 0,
-                          boxShadow: '0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-border-soft)'
+                          boxShadow: '0 0 0 2px var(--color-bg), 0 0 0 3px var(--color-border-soft)'
                         }}
                       />
                       <span className="text-sm font-semibold text-primary">{cat.name}</span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <span className="text-xs font-bold text-muted bg-surface-inner px-2 py-0.5 rounded-md border border-border-soft">{pct.toFixed(0)}%</span>
-                      <span className="text-base font-bold text-primary">{formatCurrency(cat.value)}</span>
+                      <span className="text-sm font-bold text-primary">{formatCurrency(cat.value)}</span>
                     </div>
                   </div>
                   {/* Progress bar */}
-                  <div className="progress-bar-container" style={{ height: '0.5rem' }}>
+                  <div className="progress-bar-container" style={{ height: '0.4rem' }}>
                     <div
                       className="progress-bar-fill"
                       style={{ width: `${pct}%`, backgroundColor: cat.color }}
