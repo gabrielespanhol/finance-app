@@ -29,8 +29,8 @@ export default function TransactionModal({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          aria-label="Close"
-          className="absolute top-4 right-4 text-muted transition-colors"
+          aria-label="Fechar"
+          className="absolute top-4 right-4 text-muted transition-colors font-medium border-0 bg-transparent"
           onClick={() => setSelected(null)}
         >
           ✕

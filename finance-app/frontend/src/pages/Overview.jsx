@@ -97,104 +97,103 @@ export default function Overview({ dark, setDark }) {
 
   return (
     <>
-      <h2 className="font-semibold mb-4">Visão Geral de Gastos</h2>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <select
-          value={filterYear}
-          onChange={(e) => setFilterYear(e.target.value)}
-          className={selectClass}
-        >
-          {availableYears.length === 0 && (
-            <option value={currentYear}>{currentYear}</option>
-          )}
-          {availableYears.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-
-        <select
-          value={filterMonth}
-          onChange={(e) => setFilterMonth(e.target.value)}
-          className={selectClass}
-        >
-          <option value="">Todos os meses</option>
-          {MONTHS.map((m) => (
-            <option key={m.value} value={m.value}>{m.label}</option>
-          ))}
-        </select>
-
-        {filterMonth && (
-          <button
-            onClick={() => setFilterMonth("")}
-            className="btn btn-secondary"
+      <div className="card mb-6">
+        <h2 className="text-h">Visão Geral de Gastos</h2>
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className={selectClass}
           >
-            Limpar mês
-          </button>
-        )}
-      </div>
+            {availableYears.length === 0 && (
+              <option value={currentYear}>{currentYear}</option>
+            )}
+            {availableYears.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className={cardClass}>
-          <p className="text-muted mb-1">Receitas — {periodLabel}</p>
-          <strong className="text-success text-xl">{formatCurrency(totalIncome)}</strong>
+          <select
+            value={filterMonth}
+            onChange={(e) => setFilterMonth(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">Todos os meses</option>
+            {MONTHS.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+
+          {filterMonth && (
+            <button
+              onClick={() => setFilterMonth("")}
+              className="btn btn-secondary"
+            >
+              Limpar período
+            </button>
+          )}
         </div>
-        <div className={cardClass}>
-          <p className="text-muted mb-1">Despesas — {periodLabel}</p>
-          <strong className="text-danger text-xl">{formatCurrency(totalExpense)}</strong>
-        </div>
-        <div className={cardClass}>
-          <p className="text-muted mb-1">Saldo — {periodLabel}</p>
-          <strong className={`text-xl ${totalIncome - totalExpense >= 0 ? "text-success" : "text-danger"}`}>
-            {formatCurrency(totalIncome - totalExpense)}
-          </strong>
+
+        {/* Summary Cards Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Receitas — {periodLabel}</p>
+            <strong className="text-success text-2xl">{formatCurrency(totalIncome)}</strong>
+          </div>
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Despesas — {periodLabel}</p>
+            <strong className="text-danger text-2xl">{formatCurrency(totalExpense)}</strong>
+          </div>
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Saldo — {periodLabel}</p>
+            <strong className={`text-2xl ${totalIncome - totalExpense >= 0 ? "text-success" : "text-danger"}`}>
+              {formatCurrency(totalIncome - totalExpense)}
+            </strong>
+          </div>
         </div>
       </div>
-
 
       {/* Category Breakdown */}
-      <div className={cardClass}>
-        <div className="mb-3">
-          <h3 className="text-h">Gastos por Categoria</h3>
-          <p className="text-muted">
-            {filterMonth ? `Visão mensal — ${periodLabel}` : `Visão anual — ${filterYear}`}
+      <div className={cardClass + " mb-6"}>
+        <div className="mb-6">
+          <h2 className="text-h">Gastos por Categoria</h2>
+          <p className="text-muted text-sm">
+            {filterMonth ? `Relatório mensal: ${periodLabel}` : `Relatório anual: ${filterYear}`}
           </p>
         </div>
 
         {categoryTotals.length === 0 ? (
-          <div className="text-muted p-6 text-center">Não há dados</div>
+          <div className="text-muted p-10 text-center bg-surface-inner rounded-xl border border-dashed border-border">Não há despesas registradas</div>
         ) : (
           <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-4">
             {categoryTotals.map((cat) => {
               const pct = totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0;
               return (
-                <div key={cat.name}>
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
+                <div key={cat.name} className="p-4 rounded-xl hover:bg-surface-inner border border-transparent hover:border-border-soft transition-all">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
                        <span
                         className="inline-block"
                         style={{ 
-                          width: '8px', 
-                          height: '8px', 
+                          width: '10px', 
+                          height: '10px', 
                           borderRadius: '50%', 
                           backgroundColor: cat.color,
-                          flexShrink: 0
+                          flexShrink: 0,
+                          boxShadow: '0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-border-soft)'
                         }}
                       />
-                      <span>{cat.name}</span>
+                      <span className="text-sm font-semibold text-primary">{cat.name}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted">{pct.toFixed(1)}%</span>
-                      <span className="font-medium">{formatCurrency(cat.value)}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-bold text-muted bg-surface-inner px-2 py-0.5 rounded-md border border-border-soft">{pct.toFixed(0)}%</span>
+                      <span className="text-base font-bold text-primary">{formatCurrency(cat.value)}</span>
                     </div>
                   </div>
                   {/* Progress bar */}
-                  <div className="w-full rounded-full overflow-hidden" style={{ height: '0.4rem', backgroundColor: 'var(--color-border-soft)' }}>
+                  <div className="progress-bar-container" style={{ height: '0.5rem' }}>
                     <div
-                      className="h-full transition-all duration-500"
+                      className="progress-bar-fill"
                       style={{ width: `${pct}%`, backgroundColor: cat.color }}
                     />
                   </div>
@@ -202,23 +201,24 @@ export default function Overview({ dark, setDark }) {
               );
             })}
           </div>
-          </div>
         )}
       </div>
-      {/* Transactions Table */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Transações — {periodLabel}</h3>
-          <span className="text-sm text-[#9CA3AF]">{overviewTableData.length} registros</span>
+
+      {/* Transactions Table Card */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-h m-0">Movimentações — {periodLabel}</h2>
+          <span className="text-sm font-medium text-muted bg-surface-inner px-3 py-1 rounded-full border border-border-soft">{overviewTableData.length} transações</span>
         </div>
-        <div className="flex flex-wrap items-center gap-3 mb-3">
+        
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <input
             type="text"
             placeholder="Buscar por descrição..."
             value={overviewSearch}
             onChange={(e) => setOverviewSearch(e.target.value)}
             className="input-base flex-1"
-            style={{ minWidth: '160px' }}
+            style={{ minWidth: '200px' }}
           />
           <select
             value={tableFilter.category}
@@ -243,11 +243,13 @@ export default function Overview({ dark, setDark }) {
             <button
               onClick={() => { setOverviewSearch(""); setTableFilter({ category: "", type: "" }); }}
               className="btn btn-secondary btn-icon"
+              title="Limpar filtros"
             >
-              Limpar
+              ✕
             </button>
           )}
         </div>
+
         <TransactionsTable
           tableData={overviewTableData}
           selectedIds={[]}

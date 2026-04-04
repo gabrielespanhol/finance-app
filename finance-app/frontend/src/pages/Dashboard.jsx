@@ -32,6 +32,7 @@ export default function Dashboard({ dark, setDark }) {
           <button
             onClick={handlePrevMonth}
             className="btn btn-secondary btn-icon"
+            title="Mês anterior"
           >
             ←
           </button>
@@ -44,39 +45,44 @@ export default function Dashboard({ dark, setDark }) {
           <button
             onClick={handleNextMonth}
             className="btn btn-secondary btn-icon"
+            title="Próximo mês"
           >
             →
           </button>
         </div>
-        <div className="text-muted">Mês: {tx.month}</div>
+        <div className="text-muted font-medium">
+          Período: <span className="text-primary-text">{tx.month}</span>
+        </div>
       </div>
 
       {/* SUMMARY CARDS (kept simple, reused existing values) */}
-      <h2 className="font-semibold mb-2">Balanço Mensal</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="card">
-          <p className="text-muted">Receitas</p>
-          <strong className="text-success text-xl">
-            {tx.filtered.length === 0
-              ? "R$0,00"
-              : formatCurrency(tx.totalIncome)}
-          </strong>
-        </div>
-        <div className="card">
-          <p className="text-muted">Despesas</p>
-          <strong className="text-danger text-xl">
-            {tx.filtered.length === 0
-              ? "R$0,00"
-              : formatCurrency(tx.totalExpense)}
-          </strong>
-        </div>
-        <div className="card">
-          <p className="text-muted">Saldo</p>
-          <strong
-            className={`text-xl ${tx.balance >= 0 ? "text-success" : "text-danger"}`}
-          >
-            {tx.filtered.length === 0 ? "R$0,00" : formatCurrency(tx.balance)}
-          </strong>
+      <div className="card mb-6">
+        <h2 className="text-h">Balanço Mensal</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Receitas</p>
+            <strong className="text-success text-2xl">
+              {tx.filtered.length === 0
+                ? "R$0,00"
+                : formatCurrency(tx.totalIncome)}
+            </strong>
+          </div>
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Despesas</p>
+            <strong className="text-danger text-2xl">
+              {tx.filtered.length === 0
+                ? "R$0,00"
+                : formatCurrency(tx.totalExpense)}
+            </strong>
+          </div>
+          <div className="p-4 rounded-xl bg-surface-inner border border-border-soft">
+            <p className="text-muted mb-1 text-xs font-medium uppercase tracking-wider">Saldo</p>
+            <strong
+              className={`text-2xl ${tx.balance >= 0 ? "text-success" : "text-danger"}`}
+            >
+              {tx.filtered.length === 0 ? "R$0,00" : formatCurrency(tx.balance)}
+            </strong>
+          </div>
         </div>
       </div>
 
@@ -85,7 +91,7 @@ export default function Dashboard({ dark, setDark }) {
         <h2 className="text-h">Adicionar Transação</h2>
         <form
           onSubmit={tx.handleSubmit}
-          className="flex flex-wrap gap-3 mb-3 items-center"
+          className="flex flex-wrap gap-3 mb-4 items-center"
         >
           <input
             type="date"
@@ -156,7 +162,7 @@ export default function Dashboard({ dark, setDark }) {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="inline-block h-4 w-4 mr-2"
+              className="h-4 w-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -172,23 +178,33 @@ export default function Dashboard({ dark, setDark }) {
           </button>
         </form>
 
-        <div className="mt-2">
+        <div className="pt-4 border-t border-border-soft">
           <label
-            className={`${tx.dark ? "bg-[#151719] border-[#2B3139] text-[#9CA3AF]" : "bg-white border-gray-200 text-gray-700"} inline-flex items-center gap-3 p-2 rounded-xl border cursor-pointer`}
+            className="btn btn-secondary shadow-sm cursor-pointer inline-flex items-center gap-2"
+            style={{ width: 'fit-content' }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              style={{ width: '20px', height: '20px' }}
-              viewBox="0 0 20 20"
-              fill="currentColor"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="flex-shrink-0"
+              style={{ display: 'block' }}
             >
-              <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V7l-5-4H4z" />
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" x2="12" y1="3" y2="15" />
             </svg>
-            <span className="text-sm">Upload Extrato</span>
+            <span className="font-semibold">Enviar Extrato</span>
             <input type="file" onChange={tx.handleUpload} className="hidden" />
           </label>
           {tx.uploadFeedback && (
-            <div className="mt-2 text-sm text-[#9CA3AF]">
+            <div className="mt-2 text-sm text-muted">
               {tx.uploadFeedback}
             </div>
           )}
@@ -196,8 +212,8 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       {/* CHARTS */}
-      <h2 className="text-h mt-4">Gastos por Categoria</h2>
       <div className="card mb-6">
+        <h2 className="text-h mb-4">Gastos por Categoria</h2>
         <Charts
           chartData={tx.chartData}
           balancePieData={tx.balancePieData}
@@ -206,48 +222,49 @@ export default function Dashboard({ dark, setDark }) {
       </div>
 
       {/* Transactions table + controls */}
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-h m-0">Extrato do Mês</h2>
-        <div className="flex items-center gap-2">
-          {tx.selectedIds.length > 0 && (
-            <div className="text-sm text-muted flex items-center gap-2 mr-2">
-              <span className="font-medium">{tx.selectedIds.length}</span>
-              <span style={{ color: '#6b7280' }}>/</span>
-              <span className="text-muted">{tx.tableData.length}</span>
-            </div>
-          )}
-          <button
-            onClick={async () => {
-              if (!tx.selectedIds.length) return;
-              if (
-                tx.selectedIds.length === tx.tableData.length &&
-                tx.tableData.length > 0
-              ) {
-                tx.setShowDeleteAllModal(true);
-                return;
-              }
-              await Promise.all(
-                tx.selectedIds.map((id) => tx.deleteTransaction(id)),
-              );
-              tx.setSelectedIds([]);
-              tx.fetchData();
-            }}
-            className={`btn btn-danger ${tx.selectedIds.length === 0 ? "opacity-60" : ""}`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="currentColor"
+      <div className="card mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-h m-0">Extrato do Mês</h2>
+          <div className="flex items-center gap-3">
+            {tx.selectedIds.length > 0 && (
+              <div className="text-sm text-muted flex items-center gap-1 font-medium">
+                <span>{tx.selectedIds.length}</span>
+                <span className="opacity-40">/</span>
+                <span>{tx.tableData.length}</span>
+              </div>
+            )}
+            <button
+              onClick={async () => {
+                if (!tx.selectedIds.length) return;
+                if (
+                  tx.selectedIds.length === tx.tableData.length &&
+                  tx.tableData.length > 0
+                ) {
+                  tx.setShowDeleteAllModal(true);
+                  return;
+                }
+                await Promise.all(
+                  tx.selectedIds.map((id) => tx.deleteTransaction(id)),
+                );
+                tx.setSelectedIds([]);
+                tx.fetchData();
+              }}
+              className={`btn btn-danger btn-icon ${tx.selectedIds.length === 0 ? "opacity-40" : ""}`}
+              title="Excluir selecionados"
             >
-              <path d="M9 3v1H4v2h16V4h-5V3H9zM6 7v12a2 2 0 002 2h8a2 2 0 002-2V7H6z" />
-            </svg>
-            <span>Excluir</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M9 3v1H4v2h16V4h-5V3H9zM6 7v12a2 2 0 002 2h8a2 2 0 002-2V7H6z" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
         {/* Search filter */}
         <input
           type="text"
@@ -303,6 +320,7 @@ export default function Dashboard({ dark, setDark }) {
         dark={tx.dark}
         categories={tx.categoriesMap}
       />
+      </div>
 
       {tx.selected && (
         <TransactionModal
@@ -323,7 +341,7 @@ export default function Dashboard({ dark, setDark }) {
           show={tx.showDuplicateModal}
           type="confirm"
           title="Transação duplicada"
-          message="Duplicate transaction detected. Add anyway?"
+          message="Transação duplicada detectada. Adicionar mesmo assim?"
           onCancel={() => {
             tx.setShowDuplicateModal(false);
             tx.setDuplicateCandidate(null);

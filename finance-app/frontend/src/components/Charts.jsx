@@ -11,19 +11,26 @@ const EmptyState = () => (
 const CustomLegend = ({ payload }) => {
   return (
     <ul 
-      className="flex flex-row md:flex-col flex-wrap items-center md:items-start gap-3 text-sm text-muted" 
+      className="flex flex-row md:flex-col flex-wrap items-center md:items-start gap-4 text-xs font-medium text-muted" 
       style={{ 
         width: '100%', 
         maxHeight: '280px', 
-        padding: '0 0.5rem',
+        padding: '0.25rem 0',
         overflowY: 'auto',
         scrollbarWidth: 'thin'
       }}
     >
       {payload.map((entry, index) => (
-        <li key={`item-${index}`} className="flex items-center gap-2" style={{ minWidth: '110px' }}>
-          <span style={{ backgroundColor: entry.color, width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0 }} />
-          <span className="truncate" style={{ maxWidth: '140px' }} title={entry.value}>{entry.value}</span>
+        <li key={`item-${index}`} className="flex items-center gap-2" style={{ minWidth: '120px' }}>
+          <span style={{ 
+            backgroundColor: entry.color, 
+            width: '8px', 
+            height: '8px', 
+            borderRadius: '50%', 
+            flexShrink: 0,
+            boxShadow: '0 0 0 2px var(--color-bg), 0 0 0 3px var(--color-border-soft)'
+          }} />
+          <span className="truncate" style={{ maxWidth: '160px' }} title={entry.value}>{entry.value}</span>
         </li>
       ))}
     </ul>

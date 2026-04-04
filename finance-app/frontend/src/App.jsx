@@ -28,7 +28,7 @@ export default function App() {
                       : "text-muted"
                   }`}
                 >
-                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Overview" : "Categorias"}
+                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Visão Geral" : "Categorias"}
                 </button>
               ))}
             </nav>
@@ -36,15 +36,15 @@ export default function App() {
 
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
-              <span className="text-xs">Light</span>
+              <span className="text-xs">Claro</span>
               <button
                 onClick={() => setDark(!dark)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${dark ? "bg-[#111214]" : "bg-gray-200"}`}
-                aria-label="Toggle theme"
+                aria-label="Alternar tema"
               >
                 <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${dark ? "right-1" : "left-1"}`} />
               </button>
-              <span className="text-xs">Dark</span>
+              <span className="text-xs">Escuro</span>
             </label>
           </div>
         </div>
