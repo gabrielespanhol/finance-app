@@ -181,7 +181,6 @@ export default function Overview({ dark, setDark }) {
                           borderRadius: '50%', 
                           backgroundColor: cat.color,
                           flexShrink: 0,
-                          boxShadow: '0 0 0 2px var(--color-bg), 0 0 0 3px var(--color-border-soft)'
                         }}
                       />
                       <span className="text-sm font-semibold text-primary">{cat.name}</span>
