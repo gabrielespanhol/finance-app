@@ -20,7 +20,7 @@ import {
   deleteProjection,
   updateProjection,
 } from "../services/api";
-import "./FinancialIntelligence.css";
+import "../styles/FinancialIntelligence.css";
 
 export default function FinancialIntelligence({ dark }) {
   const tx = useTransactions({ dark });
