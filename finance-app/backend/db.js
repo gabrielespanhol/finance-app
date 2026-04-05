@@ -66,6 +66,34 @@ db.serialize(() => {
       });
     });
   });
+
+  // NEW: saved_money table for manual external savings
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saved_money (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount REAL,
+      description TEXT,
+      createdAt TEXT
+    )
+  `);
+
+  // NEW: projections table for monthly recurring income/expenses
+  db.run(`
+    CREATE TABLE IF NOT EXISTS projections (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT,
+      category TEXT,
+      amount REAL,
+      description TEXT,
+      recurrence TEXT DEFAULT 'monthly',
+      startDate TEXT
+    )
+  `, () => {
+    // Migration: add category column if it doesn't exist
+    db.run(`ALTER TABLE projections ADD COLUMN category TEXT`, (err) => {
+      // Ignore error if column already exists
+    });
+  });
 });
 
 module.exports = db;

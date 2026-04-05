@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Dashboard from "./pages/Dashboard";
 import Overview from "./pages/Overview";
 import CategoriesPage from "./pages/CategoriesPage";
+import FinancialIntelligence from "./pages/FinancialIntelligence";
 
 export default function App() {
   const [tab, setTab] = useState("dashboard");
@@ -17,18 +18,18 @@ export default function App() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Finance</h1>
-            <nav className="flex items-center gap-4 bg-transparent rounded-2xl p-1 ml-4">
-              {["dashboard", "planejamento", "categorias"].map((t) => (
+            <nav className="flex items-center gap-4 bg-transparent rounded-2xl p-1 ml-4 overflow-x-auto">
+              {["dashboard", "planejamento", "inteligencia", "categorias"].map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`btn px-4 py-2 border-0 ${
+                  className={`btn px-4 py-2 border-0 whitespace-nowrap ${
                     tab === t
                       ? "btn-primary"
                       : "text-muted"
                   }`}
                 >
-                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Visão Geral" : "Categorias"}
+                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Visão Geral" : t === "inteligencia" ? "Inteligência" : "Categorias"}
                 </button>
               ))}
             </nav>
@@ -53,6 +54,7 @@ export default function App() {
       <main className="container-main">
         {tab === "dashboard" && <Dashboard dark={dark} setDark={setDark} />}
         {tab === "planejamento" && <Overview dark={dark} setDark={setDark} />}
+        {tab === "inteligencia" && <FinancialIntelligence dark={dark} setDark={setDark} />}
         {tab === "categorias" && <CategoriesPage dark={dark} setDark={setDark} />}
       </main>
     </div>

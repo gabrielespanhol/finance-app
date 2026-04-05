@@ -24,3 +24,24 @@ export const uploadFile = (formData) =>
       headers: { "Content-Type": "multipart/form-data" },
     })
     .then((r) => r.data);
+
+// Saved Money
+export const getSavedMoney = () =>
+  axios.get(`${base}/saved-money`).then((r) => r.data);
+export const createSavedMoney = (payload) =>
+  axios.post(`${base}/saved-money`, payload).then((r) => r.data);
+export const updateSavedMoney = (id, payload) =>
+  axios.put(`${base}/saved-money/${id}`, payload);
+export const deleteSavedMoney = (id) =>
+  axios.delete(`${base}/saved-money/${id}`);
+
+// Projections
+export const getProjections = () =>
+  axios.get(`${base}/projections`).then((r) => r.data);
+export const createProjection = (payload) =>
+  axios.post(`${base}/projections`, payload).then((r) => r.data);
+export const updateProjection = (id, payload) =>
+  axios.put(`${base}/projections/${id}`, payload);
+export const deleteProjection = (id) =>
+  axios.delete(`${base}/projections/${id}`);
+
