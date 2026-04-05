@@ -22,6 +22,7 @@ import {
   updateProjection,
 } from "../services/api";
 import { createPortal } from "react-dom";
+import Modal from "../components/Modal";
 import "../styles/FinancialIntelligence.css";
 
 export default function FinancialIntelligence({ dark }) {
@@ -35,6 +36,7 @@ export default function FinancialIntelligence({ dark }) {
   const [editingProj, setEditingProj] = useState(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showProjModal, setShowProjModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, action: null, title: "", message: "" });
 
   // Form states
   const [savedForm, setSavedForm] = useState({ description: "", amount: "" });
@@ -111,11 +113,17 @@ export default function FinancialIntelligence({ dark }) {
     setShowSavedModal(true);
   };
 
-  const handleDeleteSaved = async (id) => {
-    if (window.confirm("Excluir este registro?")) {
-      await deleteSavedMoney(id);
-      await fetchData();
-    }
+  const handleDeleteSaved = (id) => {
+    setDeleteConfirm({
+      show: true,
+      title: "Excluir Registro",
+      message: "Você tem certeza que deseja excluir este registro de saldo?",
+      action: async () => {
+        await deleteSavedMoney(id);
+        await fetchData();
+        setDeleteConfirm({ show: false, action: null, title: "", message: "" });
+      }
+    });
   };
 
   const handleAddProj = async (e) => {
@@ -171,11 +179,17 @@ export default function FinancialIntelligence({ dark }) {
     setShowProjModal(true);
   };
 
-  const handleDeleteProj = async (id) => {
-    if (window.confirm("Excluir esta projeção?")) {
-      await deleteProjection(id);
-      await fetchData();
-    }
+  const handleDeleteProj = (id) => {
+    setDeleteConfirm({
+      show: true,
+      title: "Excluir Recorrência",
+      message: "Isso removerá esta projeção dos cálculos futuros. Continuar?",
+      action: async () => {
+        await deleteProjection(id);
+        await fetchData();
+        setDeleteConfirm({ show: false, action: null, title: "", message: "" });
+      }
+    });
   };
 
   // 1) Monthly Historical Data for Line Chart
@@ -221,7 +235,6 @@ export default function FinancialIntelligence({ dark }) {
         yearMonth,
         projectionsIncome: [],
         projectionsExpense: [],
-        realCreditCard: 0,
         totalIncome: 0,
         totalExpense: 0,
       };
@@ -244,16 +257,7 @@ export default function FinancialIntelligence({ dark }) {
         }
       });
 
-      // Search real future transactions (Credit Card / Installments)
-      tx.transactions.forEach((t) => {
-        if (t.date && t.date.startsWith(yearMonth)) {
-          const desc = (t.description || "").toLowerCase();
-          if (desc.includes("cartão") || desc.includes("credito") || desc.includes("crédito") || desc.includes("parcela")) {
-            monthData.realCreditCard += Number(t.amount);
-            monthData.totalExpense += Number(t.amount);
-          }
-        }
-      });
+      // Projections logic already updates totalIncome and totalExpense above
 
       monthData.remaining = monthData.totalIncome - monthData.totalExpense;
       return monthData;
@@ -262,14 +266,15 @@ export default function FinancialIntelligence({ dark }) {
     return result;
   }, [projections, tx.transactions, gridYear]);
 
-  // Group projections by category for table display
   const groupedProjsByCat = useMemo(() => {
     const groups = {};
-    projections.forEach(p => {
-      const cat = p.category || (p.type === 'income' ? 'Entradas' : 'Fixos');
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(p);
-    });
+    (projections || [])
+      .filter(p => Number(p.amount) > 0 && (p.description || "").trim() !== "")
+      .forEach(p => {
+        const cat = p.category || (p.type === 'income' ? 'Entradas' : 'Fixos');
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(p);
+      });
     return groups;
   }, [projections]);
 
@@ -400,7 +405,7 @@ export default function FinancialIntelligence({ dark }) {
               <p className="text-muted text-xs">Projeções mensais automáticas (Entradas e Fixos)</p>
             </div>
             <button className="btn btn-primary" onClick={() => { setEditingProj(null); setProjForm({ description: "", category: "Fixos", amount: "", type: "expense", startDate: new Date().toISOString().slice(0, 10) }); setShowProjModal(true); }}>
-               Configurar
+               Adicionar
             </button>
           </div>
 
@@ -472,19 +477,19 @@ export default function FinancialIntelligence({ dark }) {
           <table className="projection-grid-table">
             <thead>
               <tr className="bg-surface-inner">
-                <th className="p-4 border-r border-b border-border-soft font-black uppercase tracking-widest sticky left-0 bg-surface-inner z-10 w-[200px]">CATEGORIA</th>
+                <th className="sticky-col bg-surface-inner font-black uppercase tracking-widest w-[200px]">CATEGORIA</th>
                 {gridData.map(d => (
-                  <th key={d.monthName} className="p-4 border-r border-b border-border-soft text-center font-black uppercase">{d.monthName}</th>
+                  <th key={d.monthName} className="text-center font-black uppercase">{d.monthName}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {/* Income Rows */}
               <tr className="bg-success/5 font-bold">
-                <td className="p-4 border-r border-b border-border-soft uppercase text-success sticky left-0 bg-[#f0fdf4] dark:bg-success/10 z-10">ENTRADAS (Projetado)</td>
+                <td className="sticky-col bg-[#f0fdf4] dark:bg-success/10 uppercase text-success font-black">ENTRADAS (Projetado)</td>
                 {gridData.map((d, i) => (
-                  <td key={i} className="p-4 border-r border-b border-border-soft text-center text-success text-sm font-black">
-                    {formatCurrency(d.totalIncome)}
+                  <td key={i} className="text-center text-success text-sm font-black">
+                    {d.totalIncome > 0 ? formatCurrency(d.totalIncome) : <span className="text-muted opacity-40">-</span>}
                   </td>
                 ))}
               </tr>
@@ -493,14 +498,14 @@ export default function FinancialIntelligence({ dark }) {
               {Object.entries(groupedProjsByCat).filter(([cat, ps]) => ps[0].type === 'expense').map(([cat, ps]) => (
                 <React.Fragment key={cat}>
                     <tr className="bg-surface-inner">
-                        <td colSpan={13} className="p-3 border-b border-border-soft text-muted font-black uppercase text-[10px] tracking-widest px-4 sticky left-0 bg-surface-inner z-10">{cat}</td>
+                        <td colSpan={13} className="bg-surface-inner text-muted font-black uppercase text-[10px] tracking-widest px-4 sticky-col">{cat}</td>
                     </tr>
                     {ps.map(p => (
                         <tr key={p.id} className="hover:bg-surface-inner transition-colors">
-                            <td className="p-4 border-r border-b border-border-soft text-primary-text font-medium sticky left-0 bg-surface z-10">{p.description}</td>
+                            <td className="sticky-col bg-surface text-primary-text font-medium">{p.description}</td>
                             {gridData.map((d, i) => (
-                                <td key={i} className="p-4 border-r border-b border-border-soft text-center font-bold text-primary-text opacity-70">
-                                    {p.startDate <= d.yearMonth + "-31" ? formatCurrency(p.amount) : "-"}
+                                <td key={i} className="text-center font-bold text-primary-text opacity-70">
+                                    {(p.startDate <= d.yearMonth + "-31" && p.amount > 0) ? formatCurrency(p.amount) : <span className="text-muted opacity-30">-</span>}
                                 </td>
                             ))}
                         </tr>
@@ -508,33 +513,21 @@ export default function FinancialIntelligence({ dark }) {
                 </React.Fragment>
               ))}
 
-              {/* Real Future Transactions (Credit Card) */}
-              <tr className="bg-warning/5 hover:bg-warning/10 transition-colors">
-                <td className="p-4 border-r border-b border-border-soft font-black text-primary-text uppercase tracking-tight sticky left-0 bg-warning/5 z-10">
-                   Cartão de Crédito <span className="opacity-40">(Real)</span>
-                </td>
-                {gridData.map((d, i) => (
-                  <td key={i} className="p-4 border-r border-b border-border-soft text-center font-black text-primary-text flex items-center justify-center gap-1">
-                    {d.realCreditCard > 0 && <span className="text-[10px]" title="Capturado do banco">🔒</span>}
-                    {formatCurrency(d.realCreditCard)}
-                  </td>
-                ))}
-              </tr>
 
               {/* TOTALS */}
               <tr className="font-black border-t-2 border-border-soft">
-                <td className="p-4 border-r border-b border-border-soft sticky left-0 bg-surface z-10">TOTAL GASTOS</td>
+                <td className="sticky-col bg-surface">TOTAL GASTOS</td>
                 {gridData.map((d, i) => (
-                  <td key={i} className="p-4 border-r border-b border-border-soft text-center text-danger font-black text-sm">
-                    {formatCurrency(d.totalExpense)}
+                  <td key={i} className="text-center text-danger font-black text-sm">
+                    {d.totalExpense > 0 ? formatCurrency(d.totalExpense) : <span className="text-muted opacity-40">-</span>}
                   </td>
                 ))}
               </tr>
               <tr className="font-black bg-surface-inner">
-                <td className="p-4 border-r border-b border-border-soft sticky left-0 bg-surface-inner z-10">DINHEIRO RESTANTE</td>
+                <td className="sticky-col bg-surface-inner">DINHEIRO RESTANTE</td>
                 {gridData.map((d, i) => (
-                  <td key={i} className={`p-4 border-r border-border-soft text-center text-sm font-black ${d.remaining >= 0 ? 'text-success' : 'text-danger'}`}>
-                    {formatCurrency(d.remaining)}
+                  <td key={i} className={`text-center text-sm font-black ${d.remaining >= 0 ? 'text-success' : 'text-danger'}`}>
+                    {d.remaining !== 0 ? formatCurrency(d.remaining) : <span className="text-muted opacity-40">-</span>}
                   </td>
                 ))}
               </tr>
@@ -678,6 +671,17 @@ export default function FinancialIntelligence({ dark }) {
         </div>,
         document.body
       )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <Modal
+        show={deleteConfirm.show}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        danger={true}
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteConfirm({ ...deleteConfirm, show: false })}
+        onConfirm={deleteConfirm.action}
+      />
 
     </div>
   );

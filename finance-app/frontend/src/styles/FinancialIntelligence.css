@@ -73,6 +73,36 @@
     width: 100%;
     text-align: left;
     font-size: 11px;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 900px;
+}
+
+.projection-grid-table th,
+.projection-grid-table td {
+    padding: 0.5rem 0.75rem; /* Compact Excel Style */
+    white-space: nowrap;
+    border-right: 1px solid var(--color-border-soft);
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.projection-grid-table th:last-child,
+.projection-grid-table td:last-child {
+    border-right: none;
+}
+
+.projection-grid-table .sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* Subtle shadow for depth when scrolling */
+}
+
+/* Ensure backgrounds match during sticky scroll */
+.projection-grid-table .bg-surface-inner {
+    background-color: var(--color-surface-inner);
+}
+
+.projection-grid-table .bg-surface {
+    background-color: var(--color-surface);
 }

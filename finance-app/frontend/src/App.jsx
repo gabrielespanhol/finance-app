@@ -19,7 +19,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Finance</h1>
             <nav className="flex items-center gap-4 bg-transparent rounded-2xl p-1 ml-4 overflow-x-auto">
-              {["dashboard", "planejamento", "inteligencia", "categorias"].map((t) => (
+              {["dashboard", "planejamento", "Fluxo geral", "categorias"].map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -29,7 +29,7 @@ export default function App() {
                       : "text-muted"
                   }`}
                 >
-                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Visão Geral" : t === "inteligencia" ? "Inteligência" : "Categorias"}
+                  {t === "dashboard" ? "Dashboard" : t === "planejamento" ? "Overview" : t === "Fluxo geral" ? "Fluxo geral" : "Categorias"}
                 </button>
               ))}
             </nav>
@@ -54,7 +54,7 @@ export default function App() {
       <main className="container-main">
         {tab === "dashboard" && <Dashboard dark={dark} setDark={setDark} />}
         {tab === "planejamento" && <Overview dark={dark} setDark={setDark} />}
-        {tab === "inteligencia" && <FinancialIntelligence dark={dark} setDark={setDark} />}
+        {tab === "Fluxo geral" && <FinancialIntelligence dark={dark} setDark={setDark} />}
         {tab === "categorias" && <CategoriesPage dark={dark} setDark={setDark} />}
       </main>
     </div>
