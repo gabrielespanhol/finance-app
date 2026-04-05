@@ -106,8 +106,8 @@ export default function Overview({ dark, setDark }) {
             onChange={(e) => setFilterYear(e.target.value)}
             className={selectClass}
           >
-            {availableYears.length === 0 && (
-              <option value={currentYear}>{currentYear}</option>
+            {!availableYears.includes(filterYear) && (
+              <option value={filterYear}>{filterYear}</option>
             )}
             {availableYears.map((y) => (
               <option key={y} value={y}>{y}</option>
