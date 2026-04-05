@@ -14,12 +14,14 @@ import { formatCurrency } from "../utils/format";
 import {
   getSavedMoney,
   createSavedMoney,
+  updateSavedMoney,
   deleteSavedMoney,
   getProjections,
   createProjection,
   deleteProjection,
   updateProjection,
 } from "../services/api";
+import { createPortal } from "react-dom";
 import "../styles/FinancialIntelligence.css";
 
 export default function FinancialIntelligence({ dark }) {
@@ -31,6 +33,8 @@ export default function FinancialIntelligence({ dark }) {
   const [feedback, setFeedback] = useState({ type: null, message: "" });
   const [editingSaved, setEditingSaved] = useState(null);
   const [editingProj, setEditingProj] = useState(null);
+  const [showSavedModal, setShowSavedModal] = useState(false);
+  const [showProjModal, setShowProjModal] = useState(false);
 
   // Form states
   const [savedForm, setSavedForm] = useState({ description: "", amount: "" });
@@ -92,7 +96,7 @@ export default function FinancialIntelligence({ dark }) {
       }
       setSavedForm({ description: "", amount: "" });
       setEditingSaved(null);
-      document.getElementById('modal-saved')?.close();
+      setShowSavedModal(false);
       await fetchData();
     } catch (err) {
       showFeedback("error", "Erro ao salvar dados.");
@@ -104,7 +108,7 @@ export default function FinancialIntelligence({ dark }) {
   const handleEditSaved = (sm) => {
     setEditingSaved(sm);
     setSavedForm({ description: sm.description, amount: sm.amount });
-    document.getElementById('modal-saved')?.showModal();
+    setShowSavedModal(true);
   };
 
   const handleDeleteSaved = async (id) => {
@@ -146,7 +150,7 @@ export default function FinancialIntelligence({ dark }) {
         startDate: new Date().toISOString().slice(0, 10),
       });
       setEditingProj(null);
-      document.getElementById('modal-proj')?.close();
+      setShowProjModal(false);
       await fetchData();
     } catch (err) {
       showFeedback("error", "Erro ao salvar recorrência.");
@@ -164,7 +168,7 @@ export default function FinancialIntelligence({ dark }) {
       type: p.type,
       startDate: p.startDate,
     });
-    document.getElementById('modal-proj')?.showModal();
+    setShowProjModal(true);
   };
 
   const handleDeleteProj = async (id) => {
@@ -333,7 +337,7 @@ export default function FinancialIntelligence({ dark }) {
               <h2 className="text-h m-0 text-xl">Dinheiro Guardado</h2>
               <p className="text-muted text-xs">Acompanhamento manual de reservas e investimentos</p>
             </div>
-            <button className="btn btn-primary" onClick={() => { setEditingSaved(null); setSavedForm({ description: "", amount: "" }); document.getElementById('modal-saved').showModal(); }}>
+            <button className="btn btn-primary" onClick={() => { setEditingSaved(null); setSavedForm({ description: "", amount: "" }); setShowSavedModal(true); }}>
                Adicionar
             </button>
           </div>
@@ -344,35 +348,37 @@ export default function FinancialIntelligence({ dark }) {
              <span className="text-2xl font-black text-primary-text">{formatCurrency(totalSavedValue)}</span>
           </div>
 
-          <div className="overflow-x-auto mt-2">
-            <table className="w-full text-left text-sm">
-              <thead className="text-muted border-b border-border-soft">
+          <div className="table-container mt-2">
+            <table className="table-fixed">
+              <thead>
                 <tr>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Descrição</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Valor</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Data</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Ação</th>
+                  <th className="text-left w-auto">Descrição</th>
+                  <th className="text-left w-[140px]">Data</th>
+                  <th className="text-left w-[150px]">Valor</th>
+                  <th className="text-right w-[100px]">Ação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-soft">
+              <tbody>
                 {savedMoney.map((sm) => (
                   <tr key={sm.id} className="hover:bg-surface-inner transition-colors">
-                    <td className="py-3 px-4 text-left">{sm.description}</td>
-                    <td className="py-3 px-4 text-left font-bold">{formatCurrency(sm.amount)}</td>
-                    <td className="py-3 px-4 text-left text-muted text-xs">
+                    <td className="text-left align-middle overflow-hidden text-ellipsis whitespace-nowrap">{sm.description}</td>
+                    <td className="text-left text-muted text-xs align-middle whitespace-nowrap">
                       {new Date(sm.createdAt).toLocaleDateString("pt-BR")}
                     </td>
-                    <td className="py-3 px-4 text-left flex items-center justify-start gap-2">
-                      <button onClick={() => handleEditSaved(sm)} className="btn btn-icon text-muted hover:text-primary transition-colors" title="Editar">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                         </svg>
-                      </button>
-                      <button onClick={() => handleDeleteSaved(sm.id)} className="btn btn-icon text-danger hover:bg-danger/10 transition-colors" title="Excluir">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                         </svg>
-                      </button>
+                    <td className="text-left font-bold align-middle whitespace-nowrap">{formatCurrency(sm.amount)}</td>
+                    <td className="text-right align-middle">
+                      <div className="flex items-center justify-end gap-2 h-full">
+                        <button onClick={() => handleEditSaved(sm)} className="btn btn-icon text-muted hover:text-primary transition-colors" title="Editar">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                           </svg>
+                        </button>
+                        <button onClick={() => handleDeleteSaved(sm.id)} className="btn btn-icon text-danger hover:bg-danger/10 transition-colors" title="Excluir">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                           </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -393,42 +399,44 @@ export default function FinancialIntelligence({ dark }) {
               <h2 className="text-h m-0 text-xl">Recorrências</h2>
               <p className="text-muted text-xs">Projeções mensais automáticas (Entradas e Fixos)</p>
             </div>
-            <button className="btn btn-primary" onClick={() => { setEditingProj(null); setProjForm({ description: "", category: "Fixos", amount: "", type: "expense", startDate: new Date().toISOString().slice(0, 10) }); document.getElementById('modal-proj').showModal(); }}>
+            <button className="btn btn-primary" onClick={() => { setEditingProj(null); setProjForm({ description: "", category: "Fixos", amount: "", type: "expense", startDate: new Date().toISOString().slice(0, 10) }); setShowProjModal(true); }}>
                Configurar
             </button>
           </div>
 
-          <div className="overflow-x-auto mt-2">
-            <table className="w-full text-left text-sm">
-              <thead className="text-muted border-b border-border-soft">
+          <div className="table-container mt-2">
+            <table className="table-fixed">
+              <thead>
                 <tr>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Descrição</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Categoria</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Valor</th>
-                  <th className="py-3 px-4 font-bold text-xs uppercase tracking-tighter text-left">Ação</th>
+                  <th className="text-left w-auto">Descrição</th>
+                  <th className="text-left w-[140px]">Categoria</th>
+                  <th className="text-left w-[150px]">Valor</th>
+                  <th className="text-right w-[100px]">Ação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-soft">
+              <tbody>
                 {projections.map((p) => (
                   <tr key={p.id} className="hover:bg-surface-inner transition-colors">
-                    <td className="py-3 px-4 text-left">{p.description}</td>
-                    <td className="py-3 px-4 text-left">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${p.type === "income" ? "bg-success/20 text-success" : "bg-danger/20 text-danger"}`}>
+                    <td className="text-left align-middle overflow-hidden text-ellipsis whitespace-nowrap">{p.description}</td>
+                    <td className="text-left align-middle w-[140px]">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-flex items-center ${p.type === "income" ? "bg-success/20 text-success" : "bg-danger/20 text-danger"}`}>
                         {p.category || (p.type === 'income' ? 'Entrada' : 'Fixo')}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-left font-bold">{formatCurrency(p.amount)}</td>
-                    <td className="py-3 px-4 text-left flex items-center justify-start gap-2">
-                       <button onClick={() => handleEditProj(p)} className="btn btn-icon text-muted hover:text-primary transition-colors" title="Editar">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                         </svg>
-                      </button>
-                      <button onClick={() => handleDeleteProj(p.id)} className="btn btn-icon text-danger hover:bg-danger/10 transition-colors" title="Excluir">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                         </svg>
-                      </button>
+                    <td className="text-left font-bold align-middle whitespace-nowrap">{formatCurrency(p.amount)}</td>
+                    <td className="text-right align-middle">
+                      <div className="flex items-center justify-end gap-2 h-full">
+                         <button onClick={() => handleEditProj(p)} className="btn btn-icon text-muted hover:text-primary transition-colors" title="Editar">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                           </svg>
+                        </button>
+                        <button onClick={() => handleDeleteProj(p.id)} className="btn btn-icon text-danger hover:bg-danger/10 transition-colors" title="Excluir">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                           </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -536,139 +544,140 @@ export default function FinancialIntelligence({ dark }) {
       </div>
 
       {/* MODAL SAVED MONEY */}
-      <dialog id="modal-saved" className="modal-custom">
-        <div className="modal-card">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-black">{editingSaved ? 'Editar Registro' : 'Registrar Saldo'}</h3>
-              <p className="text-muted text-xs font-bold opacity-60">Dinheiro guardado ou investimentos</p>
-            </div>
-            <button onClick={() => document.getElementById('modal-saved').close()} className="btn btn-secondary btn-icon rounded-full">✕</button>
-          </div>
-          <form onSubmit={handleAddSaved} className="flex flex-col gap-6">
-            <div>
-              <label className="label-form">Descrição</label>
-              <input 
-                type="text" 
-                className="input-base w-full h-12" 
-                value={savedForm.description}
-                onChange={e => setSavedForm({...savedForm, description: e.target.value})}
-                placeholder="Ex: Reserva de Emergência"
-                required
-                autoComplete="off"
-              />
-            </div>
-            <div>
-              <label className="label-form">Valor atual</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted">R$</span>
+      {showSavedModal && createPortal(
+        <div className="modal-overlay" onClick={() => setShowSavedModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button aria-label="Fechar" className="modal-close" onClick={() => setShowSavedModal(false)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <h2 className="text-xl font-bold mb-8">{editingSaved ? 'Editar Registro' : 'Registrar Saldo'}</h2>
+            
+            <form onSubmit={handleAddSaved} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Descrição</label>
+                <input 
+                  type="text" 
+                  className="input-base w-full" 
+                  value={savedForm.description}
+                  onChange={e => setSavedForm({...savedForm, description: e.target.value})}
+                  placeholder="Ex: Reserva de Emergência"
+                  required
+                  autoComplete="off"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Valor (R$)</label>
                 <input 
                   type="number" 
                   step="0.01" 
-                  className="input-base w-full h-12 pl-12 font-black text-lg" 
+                  className="input-base w-full" 
                   value={savedForm.amount}
                   onChange={e => setSavedForm({...savedForm, amount: e.target.value})}
                   placeholder="0,00"
                   required
                 />
               </div>
-            </div>
-            <div className="flex gap-4 items-center mt-4">
-              <button type="button" className="btn btn-secondary flex-1 h-12 font-bold" onClick={() => document.getElementById('modal-saved').close()}>Cancelar</button>
-              <button type="submit" disabled={isSubmitting} className="btn btn-primary flex-1 h-12 font-black shadow-xl disabled:opacity-50">
-                {isSubmitting ? "Salvando..." : (editingSaved ? "Atualizar" : "Confirmar")}
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" className="btn btn-secondary px-6" onClick={() => setShowSavedModal(false)}>Cancelar</button>
+                <button type="submit" disabled={isSubmitting} className="btn btn-primary px-8">
+                  {isSubmitting ? "Salvando..." : (editingSaved ? "Atualizar" : "Confirmar")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* MODAL PROJECTION */}
-      <dialog id="modal-proj" className="modal-custom">
-        <div className="modal-card max-w-[500px]">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-black">{editingProj ? 'Editar Recorrência' : 'Nova Recorrência'}</h3>
-              <p className="text-muted text-xs font-bold opacity-60">Fluxos previsíveis de entrada ou saída</p>
-            </div>
-            <button onClick={() => document.getElementById('modal-proj').close()} className="btn btn-secondary btn-icon rounded-full">✕</button>
+      {showProjModal && createPortal(
+        <div className="modal-overlay" onClick={() => setShowProjModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button aria-label="Fechar" className="modal-close" onClick={() => setShowProjModal(false)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <h2 className="text-xl font-bold mb-8">{editingProj ? 'Editar Recorrência' : 'Nova Recorrência'}</h2>
+            
+            <form onSubmit={handleAddProj} className="flex flex-col gap-6">
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Natureza</label>
+                    <select 
+                      className="input-base w-full" 
+                      value={projForm.type}
+                      onChange={e => setProjForm({...projForm, type: e.target.value, category: e.target.value === 'income' ? 'Entradas' : 'Fixos'})}
+                    >
+                      <option value="expense">Despesa</option>
+                      <option value="income">Receita</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Categoria</label>
+                    <input 
+                      type="text"
+                      className="input-base w-full"
+                      list="proj-cats-v2"
+                      value={projForm.category}
+                      onChange={e => setProjForm({...projForm, category: e.target.value})}
+                      placeholder="Fixos..."
+                    />
+                    <datalist id="proj-cats-v2">
+                      <option value="Fixos" />
+                      <option value="Serviços" />
+                      <option value="Estudo" />
+                      <option value="Investimento" />
+                    </datalist>
+                  </div>
+               </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Descrição</label>
+                <input 
+                  type="text" 
+                  className="input-base w-full" 
+                  value={projForm.description}
+                  onChange={e => setProjForm({...projForm, description: e.target.value})}
+                  placeholder="Ex: Aluguel, Internet, Salário..."
+                  required
+                  autoComplete="off"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Valor (R$)</label>
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      className="input-base w-full" 
+                      value={projForm.amount}
+                      onChange={e => setProjForm({...projForm, amount: e.target.value})}
+                      placeholder="0,00"
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Plano inicia em</label>
+                    <input 
+                      type="date" 
+                      className="input-base w-full" 
+                      value={projForm.startDate}
+                      onChange={e => setProjForm({...projForm, startDate: e.target.value})}
+                      required
+                    />
+                  </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" className="btn btn-secondary px-6" onClick={() => setShowProjModal(false)}>Cancelar</button>
+                <button type="submit" disabled={isSubmitting} className="btn btn-primary px-8">
+                  {isSubmitting ? "Salvando..." : (editingProj ? "Salvar" : "Salvar")}
+                </button>
+              </div>
+            </form>
           </div>
-          <form onSubmit={handleAddProj} className="flex flex-col gap-6">
-             <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="label-form">Natureza</label>
-                  <select 
-                    className="input-base w-full h-12 font-black" 
-                    value={projForm.type}
-                    onChange={e => setProjForm({...projForm, type: e.target.value, category: e.target.value === 'income' ? 'Entradas' : 'Fixos'})}
-                  >
-                    <option value="expense">Despesa 📉</option>
-                    <option value="income">Receita 📈</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="label-form">Grupo / Tags</label>
-                  <input 
-                    type="text"
-                    className="input-base w-full h-12"
-                    list="proj-cats-v2"
-                    value={projForm.category}
-                    onChange={e => setProjForm({...projForm, category: e.target.value})}
-                    placeholder="Fixos..."
-                  />
-                  <datalist id="proj-cats-v2">
-                    <option value="Fixos" />
-                    <option value="Serviços" />
-                    <option value="Estudo" />
-                    <option value="Investimento" />
-                  </datalist>
-                </div>
-             </div>
-            <div>
-              <label className="label-form">Identificação</label>
-              <input 
-                type="text" 
-                className="input-base w-full h-12" 
-                value={projForm.description}
-                onChange={e => setProjForm({...projForm, description: e.target.value})}
-                placeholder="Ex: Aluguel, Internet, Salário..."
-                required
-                autoComplete="off"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="label-form">Valor Estimado</label>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    className="input-base w-full h-12 font-black" 
-                    value={projForm.amount}
-                    onChange={e => setProjForm({...projForm, amount: e.target.value})}
-                    placeholder="0,00"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="label-form">Plano inicia em</label>
-                  <input 
-                    type="date" 
-                    className="input-base w-full h-12" 
-                    value={projForm.startDate}
-                    onChange={e => setProjForm({...projForm, startDate: e.target.value})}
-                    required
-                  />
-                </div>
-            </div>
-            <div className="flex gap-4 items-center mt-6">
-              <button type="button" className="btn btn-secondary flex-1 h-12 font-bold" onClick={() => document.getElementById('modal-proj').close()}>Cancelar</button>
-              <button type="submit" disabled={isSubmitting} className="btn btn-primary flex-1 h-12 font-black shadow-xl disabled:opacity-50">
-                {isSubmitting ? "Processando..." : (editingProj ? "Salvar Alterações" : "Salvar Projeção")}
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
+        </div>,
+        document.body
+      )}
 
     </div>
   );

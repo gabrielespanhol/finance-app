@@ -251,6 +251,14 @@ tr:hover td { background-color: var(--color-bg); }
 .duration-700 { transition-duration: 700ms; }
 .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
 
+.table-fixed { table-layout: fixed; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+.align-middle { vertical-align: middle !important; }
+.overflow-hidden { overflow: hidden; }
+.text-ellipsis { text-overflow: ellipsis; }
+
 /* MODAL SYSTEM (RESTORATION) */
 .modal-overlay {
   position: fixed;
