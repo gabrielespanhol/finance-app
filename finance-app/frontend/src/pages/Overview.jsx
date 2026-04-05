@@ -3,6 +3,7 @@ import useTransactions from "../hooks/useTransactions";
 import { formatCurrency } from "../utils/format";
 import TransactionsTable from "../components/TransactionsTable";
 import TransactionModal from "../components/TransactionModal";
+import Modal from "../components/Modal";
 
 export default function Overview({ dark, setDark }) {
   const tx = useTransactions({ dark, setDark });
@@ -208,7 +209,44 @@ export default function Overview({ dark, setDark }) {
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-h m-0">Movimentações — {periodLabel}</h2>
-          <span className="text-sm font-medium text-muted bg-surface-inner px-3 py-1 rounded-full border border-border-soft">{overviewTableData.length} transações</span>
+          <div className="flex items-center gap-3">
+            {tx.selectedIds.length > 0 && (
+              <div className="text-sm text-muted flex items-center gap-1 font-medium">
+                <span>{tx.selectedIds.length}</span>
+                <span className="opacity-40">/</span>
+                <span>{overviewTableData.length}</span>
+              </div>
+            )}
+            <button
+              onClick={async () => {
+                if (!tx.selectedIds.length) return;
+                if (
+                  tx.selectedIds.length === overviewTableData.length &&
+                  overviewTableData.length > 0
+                ) {
+                  tx.setShowDeleteAllModal(true);
+                  return;
+                }
+                await Promise.all(
+                  tx.selectedIds.map((id) => tx.deleteTransaction(id)),
+                );
+                tx.setSelectedIds([]);
+                tx.fetchData();
+              }}
+              className={`btn btn-danger btn-icon ${tx.selectedIds.length === 0 ? "opacity-40" : ""}`}
+              title="Excluir selecionados"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M9 3v1H4v2h16V4h-5V3H9zM6 7v12a2 2 0 002 2h8a2 2 0 002-2V7H6z" />
+              </svg>
+            </button>
+            <span className="text-sm font-medium text-muted bg-surface-inner px-3 py-1 rounded-full border border-border-soft">{overviewTableData.length} transações</span>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -252,10 +290,10 @@ export default function Overview({ dark, setDark }) {
 
         <TransactionsTable
           tableData={overviewTableData}
-          selectedIds={[]}
-          setSelectedIds={() => {}}
+          selectedIds={tx.selectedIds}
+          setSelectedIds={tx.setSelectedIds}
           setSelected={tx.setSelected}
-          dark={dark}
+          dark={tx.dark}
           categories={tx.categoriesMap}
         />
       </div>
@@ -265,12 +303,30 @@ export default function Overview({ dark, setDark }) {
           selected={tx.selected}
           updateSelected={tx.updateSelected}
           setSelected={tx.setSelected}
-          dark={dark}
+          dark={tx.dark}
           fetchData={tx.fetchData}
           setModalEditing={tx.setModalEditing}
           updateTransaction={tx.updateTransaction}
           deleteTransaction={tx.deleteTransaction}
           categories={tx.categories}
+        />
+      )}
+
+      {tx.showDeleteAllModal && (
+        <Modal
+          show={tx.showDeleteAllModal}
+          type="confirm"
+          danger={true}
+          title="Confirmar exclusão"
+          message="Você tem certeza que deseja excluir todas as transações visíveis? Esta ação não pode ser desfeita."
+          onCancel={() => tx.setShowDeleteAllModal(false)}
+          onConfirm={async () => {
+            await Promise.all(overviewTableData.map((t) => tx.deleteTransaction(t.id)));
+            tx.setShowDeleteAllModal(false);
+            tx.setSelectedIds([]);
+            tx.fetchData();
+          }}
+          confirmLabel="Excluir tudo"
         />
       )}
     </>

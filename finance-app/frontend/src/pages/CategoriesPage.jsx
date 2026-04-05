@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import useCategories from "../hooks/useCategories";
 import Modal from "../components/Modal";
 
@@ -8,6 +9,15 @@ export default function CategoriesPage({ dark, setDark }) {
   // Separate add and edit slightly to avoid confusion on the UI overlay
   const isEditing = cat.editingId !== null;
 
+  useEffect(() => {
+    if (isEditing) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => document.body.classList.remove("modal-open");
+  }, [isEditing]);
+
   return (
     <>
       <Modal {...cat.modal.modalState} dark={cat.dark} />
@@ -16,7 +26,7 @@ export default function CategoriesPage({ dark, setDark }) {
       <div className="card mb-6">
         <h2 className="text-h">Gerenciar Categorias</h2>
         <div className="mb-6 bg-surface-inner p-4 border border-border-soft rounded-xl">
-          <p className="text-muted text-sm mb-3 font-medium uppercase tracking-wider">Nova Categoria</p>
+          <p className="text-muted text-[10px] font-bold uppercase tracking-widest mb-3">Nova Categoria</p>
           <form 
             onSubmit={(e) => {
               if (isEditing) {
@@ -101,55 +111,56 @@ export default function CategoriesPage({ dark, setDark }) {
       </div>
 
       {/* EDIT MODAL */}
-      {isEditing && (
+      {isEditing && createPortal(
         <div className="modal-overlay" onClick={cat.cancelEdit}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button
               aria-label="Close"
-              className="absolute top-4 right-4 text-muted transition-colors"
+              className="modal-close"
               onClick={cat.cancelEdit}
             >
-              ✕
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
-            <h2 className="text-lg font-semibold mb-4">Editar Categoria</h2>
+            <h2 className="text-xl font-bold mb-8">Editar Categoria</h2>
             
-            <form onSubmit={cat.handleSubmit} className="flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="Nome da categoria"
-                className="input-base w-full"
-                value={cat.form.name}
-                onChange={(e) => cat.setForm({ ...cat.form, name: e.target.value })}
-              />
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm">Cor:</label>
+            <form onSubmit={cat.handleSubmit} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Nome da categoria</label>
                 <input
-                  type="color"
-                  className="input-color"
-                  value={cat.form.color}
-                  onChange={(e) => cat.setForm({ ...cat.form, color: e.target.value })}
+                  type="text"
+                  placeholder="Nome da categoria"
+                  className="input-base w-full"
+                  value={cat.form.name}
+                  onChange={(e) => cat.setForm({ ...cat.form, name: e.target.value })}
                 />
               </div>
 
-              <div className="flex justify-end gap-2 mt-2">
-                <button
-                  type="button"
-                  onClick={cat.cancelEdit}
-                  className="btn btn-secondary"
-                >
+              <div className="flex flex-col gap-1.5 mb-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Cor</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="color"
+                    className="input-color"
+                    style={{ width: '4rem', height: '2.5rem' }}
+                    value={cat.form.color}
+                    onChange={(e) => cat.setForm({ ...cat.form, color: e.target.value })}
+                  />
+                  <span className="text-sm font-bold tracking-tight text-primary-text">{cat.form.color}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={cat.cancelEdit} className="btn btn-secondary border border-border px-6">
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={!cat.isFormValid}
-                  className="btn btn-primary"
-                >
+                <button type="submit" disabled={!cat.isFormValid} className="btn btn-primary px-8">
                   Salvar
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
